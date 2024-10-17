@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-init-scripts
+  namespace: {{ .Values.namespace }} 
+data:
+  custom-config-01.sh: |-
+    psql -d "$1" <<__SQL__
+            create user analytics password '{{ .Values.passwords.analytics }}';
+    __SQL__
+  
+  custom-config-02.sh: |-
+    psql -d "$1" <<__SQL__
+            create user databackend password '{{ .Values.passwords.databackend }}';
+    __SQL__
+
+  custom-config-03.sh: |-
+    psql -d "$1" <<__SQL__
+        SELECT 'CREATE DATABASE "analytics" owner analytics'
+        WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'analytics')\gexec
+    __SQL__
+
+  custom-config-04.sh: |-
+    psql -d "$1" <<__SQL__
+        SELECT 'CREATE DATABASE "databackend" owner databackend'
+        WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'databackend')\gexec
+    __SQL__
