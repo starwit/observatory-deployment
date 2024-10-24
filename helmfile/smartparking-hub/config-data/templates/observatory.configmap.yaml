@@ -1,21 +1,21 @@
 apiVersion: v1
 data:
-  smartparkingconfig.json: |-
+  observatory-config.json: |-
     {
       "enabled": true,
-      "realm": "smartparkingconfig",
+      "realm": "observatory-config",
       "clients": [
         {
-          "clientId": "smartparkingconfig",
-          "name": "smartparkingconfig",
-          "description": "smartparkingconfig",
+          "clientId": "observatory-config",
+          "name": "observatory-config",
+          "description": "observatory-config",
           "enabled": true,
           "clientAuthenticatorType": "client-secret",
           "secret": "{{ .Values.auth.client_secret }}",
           "redirectUris": [
             "http{{- if .Values.tls }}s{{- end }}://dashboard.{{ .Values.hostname }}/*",
             "http{{- if .Values.tls }}s{{- end }}://spc.{{ .Values.hostname }}/*",
-            "http{{- if .Values.tls }}s{{- end }}://databackend.{{ .Values.hostname }}/*"
+            "http{{- if .Values.tls }}s{{- end }}://observatory.{{ .Values.hostname }}/*"
           ],
           "webOrigins": [
             "+"
@@ -76,4 +76,4 @@ data:
 kind: ConfigMap
 metadata:
   creationTimestamp: null
-  name: smartparking
+  name: observatory

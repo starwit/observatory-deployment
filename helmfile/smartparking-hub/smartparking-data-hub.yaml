@@ -3,10 +3,6 @@ repositories:
     url: https://charts.timescale.com/
   - name: grafana
     url: https://grafana.github.io/helm-charts
-  - name: starwit-internal
-    url: https://helm.internal.starwit-infra.de
-    username: chartmuseum
-    password: {{ env "HELM_SECRET" }}
   - name: starwitorg
     url: registry-1.docker.io/starwitorg
     oci: true
@@ -17,20 +13,19 @@ helmDefaults:
 environments:
   default:
     values:
-      - namespace: smartparking-data
+      - namespace: observatory-data
         hostname: markus-laptop
         tls: false
         auth:
-          client_secret: smartparkingconfig
+          client_secret: observatory-config
           realm_admin_pw: adminadmin
         dbpasswords: 
-          databackend: {{ requiredEnv "DB_DATABACKEND_SECRET" }} 
+          observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
           sae: {{ requiredEnv "DB_SAE_SECRET" }}
-        pullSecret: {{ requiredEnv "PULL_SECRET" }} # Starwit's internal registry
   wob-dev:
     values:  
-      - namespace: smartparking-data
+      - namespace: observatory-data
         hostname: wob-data.starwit-infra.de
         tls: true
         auth:
@@ -38,13 +33,12 @@ environments:
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: adminadmin
         dbpasswords: 
-          databackend: {{ requiredEnv "DB_DATABACKEND_SECRET" }} 
+          observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
           sae: {{ requiredEnv "DB_SAE_SECRET" }}
-        pullSecret: {{ requiredEnv "PULL_SECRET" }} # Starwit's internal registry
   wob-staging:
     values:
-      - namespace: smartparking-data
+      - namespace: observatory-data
         hostname: staging.data-wolfsburg.de
         tls: true
         auth:
@@ -52,13 +46,12 @@ environments:
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: adminadmin
         dbpasswords: 
-          databackend: {{ requiredEnv "DB_DATABACKEND_SECRET" }} 
+          observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
           sae: {{ requiredEnv "DB_SAE_SECRET" }}
-        pullSecret: {{ requiredEnv "PULL_SECRET" }} # Starwit's internal registry
   wob-prod:
     values:
-      - namespace: smartparking-data
+      - namespace: observatory-data
         hostname: data-wolfsburg.de
         tls: true
         auth:
@@ -66,10 +59,9 @@ environments:
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: adminadmin
         dbpasswords: 
-          databackend: {{ requiredEnv "DB_DATABACKEND_SECRET" }} 
+          observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
           sae: {{ requiredEnv "DB_SAE_SECRET" }}
-        pullSecret: {{ requiredEnv "PULL_SECRET" }} # Starwit's internal registry
 
 ---
 releases:
@@ -104,7 +96,7 @@ releases:
             password: bn_keycloak
         keycloakConfigCli:
           enabled: true
-          existingConfigmap: smartparking
+          existingConfigmap: observatory
 
   - name: timescaledb
     namespace: {{ .Values.namespace }}
@@ -161,39 +153,36 @@ releases:
             name: Keycloak
             allow_sign_up: true
             scopes: openid profile email
-            client_id: smartparkingconfig
+            client_id: observatory-config
             client_secret: {{ .Values.auth.client_secret }}
-            auth_url: 'http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values | get "hostname" "localhost" }}/realms/smartparkingconfig/protocol/openid-connect/auth'
-            token_url: 'http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values | get "hostname" "localhost" }}/realms/smartparkingconfig/protocol/openid-connect/token'
-            api_url: 'http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values | get "hostname" "localhost" }}/realms/smartparkingconfig/protocol/openid-connect/userinfo'
+            auth_url: 'http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values | get "hostname" "localhost" }}/realms/observatory-config/protocol/openid-connect/auth'
+            token_url: 'http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values | get "hostname" "localhost" }}/realms/observatory-config/protocol/openid-connect/token'
+            api_url: 'http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values | get "hostname" "localhost" }}/realms/observatory-config/protocol/openid-connect/userinfo'
             role_attribute_path: contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'dev') && 'Editor' || 'Viewer'
             allow_assign_grafana_admin: true
 
-  - name: smartparkingconfig
+  - name: observatory-config
     installed: true
     namespace: {{ .Values.namespace }}
-    chart: starwit-internal/smartparkingconfig
-    version: 0.5.0
+    chart: starwitorg/observatory-config-chart
+    version: 0.8.2
     values:
       - image:
-          tag: 0.5.0
-        pullSecret:
-          user: "docker"
-          password: {{ .Values.pullSecret }}
+          tag: 0.8.2
         auth:
           enabled: true
-          keycloak_url: http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values.hostname }}/realms/smartparkingconfig
-          client_id: smartparkingconfig
+          keycloak_url: http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values.hostname }}/realms/observatory-config
+          client_id: observatory-config
           client_secret: {{ .Values.auth.client_secret }}
         postgresql:
           auth:
-            database: smartparkingconfig
-            username: smartparkingconfig
-            password: smartparkingconfig
+            database: observatory-config
+            username: observatory-config
+            password: observatory-config
         extraEnv: |
-          - name: DATABACKEND_URL
-            value: http://databackend-databackend-chart.{{ .Values.namespace }}.svc.cluster.local/databackend
-          - name: DATABACKEND_CAMERAID
+          - name: OBSERVATORY_URL
+            value: http://observatory-observatory-chart.{{ .Values.namespace }}.svc.cluster.local/observatory
+          - name: OBSERVATORY_CAMERAID
             value: Bahnhofstr12
           
         ingress:
@@ -204,25 +193,25 @@ releases:
                 - path: /
                   pathType: ImplementationSpecific
 
-  - name: databackend
+  - name: observatory
     installed: true
     namespace: {{ .Values.namespace }}
-    chart: starwitorg/databackend-chart
-    version: 0.5.0
+    chart: starwitorg/observatory-chart
+    version: 1.2.4
     values:
       - image:
-          tag: 0.5.0
+          tag: 1.2.4
         extraEnv: |
           - name: SERVER_PORT
             value: "8081"
         databases:
-          databackend: 
+          observatory: 
             internal: false
             host: timescaledb.{{ .Values.namespace }}.svc.cluster.local
             port: 5432          
-            database: databackend
-            username: databackend
-            password: {{ .Values.dbpasswords.databackend }}
+            database: observatory
+            username: observatory
+            password: {{ .Values.dbpasswords.observatory }}
           sae:
             host: 100.90.178.96
             port: 30001
@@ -238,6 +227,6 @@ releases:
             password: {{ .Values.dbpasswords.analytics }}
         postgresql:
           auth:
-            database: databackend
-            username: databackend
-            password: {{ .Values.dbpasswords.databackend }}
+            database: observatory
+            username: observatory
+            password: {{ .Values.dbpasswords.observatory }}

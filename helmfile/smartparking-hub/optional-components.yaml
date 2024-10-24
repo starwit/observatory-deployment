@@ -10,22 +10,22 @@ helmDefaults:
 environments:
   default:
     values:
-      - namespace: smartparking-data-optional
+      - namespace: observatory-data-optional
         hostname: markus-laptop
         tls: false
   wob-dev:
     values:  
-      - namespace: smartparking-data-optional
+      - namespace: observatory-data-optional
         hostname: wob-data.starwit-infra.de
         tls: true
   wob-staging:
     values:
-      - namespace: smartparking-data-optional
+      - namespace: observatory-data-optional
         hostname: staging.data-wolfsburg.de
         tls: true
   wob-prod:
     values:
-      - namespace: smartparking-data-optional
+      - namespace: observatory-data-optional
         hostname: data-wolfsburg.de
         tls: true
 
