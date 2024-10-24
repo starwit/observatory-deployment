@@ -26,9 +26,9 @@ TODO
 With Helmfile you need a running Kubernetes cluster and your KUBECONFIG variable needs to point to an according config. If this is the case, the following command will install all components to namespace _aic_.
 
 ```bash
-    cd helmfile
-    helmfile diff helmfile.yaml -e observatory # check planned changes
-    helmfile apply helmfile.yaml -e observatory 
+    cd smartparking-hub
+    helmfile diff -f smartparking-data-hub.yaml -e wob-staging # check planned changes
+    helmfile apply -f smartparking-data-hub.yaml -e wob-staging
 ```
 
 #### Connection to Database
