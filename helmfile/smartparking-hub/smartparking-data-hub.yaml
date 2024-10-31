@@ -15,7 +15,7 @@ environments:
     values:
       - namespace: observatory-data
         hostname: infra-biggpu
-        tls: false
+        tls: true
         auth:
           client_secret: {{ requiredEnv "CLIENT_SECRET" }}
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
@@ -167,9 +167,9 @@ releases:
           tag: 0.8.5
         auth:
           enabled: true
-          keycloak_url: http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values.hostname }}/realms/observatory-config
+          keycloak_url: http://keycloak.{{ .Values.namespace }}.svc.cluster.local/realms/observatory-config
           client_id: observatory-config
-          client_secret: {{ .Values.auth.client_secret }}
+          clientSecret: {{ .Values.auth.client_secret }}
           keycloakRealmUrlInternal: http://keycloak.{{ .Values.namespace }}.svc.cluster.local/realms/observatory-config
           keycloakRealmUrlExternal: https://auth.{{ .Values.hostname }}/realms/observatory-config
         postgresql:
@@ -181,7 +181,9 @@ releases:
           - name: OBSERVATORY_URL
             value: http://observatory.{{ .Values.namespace }}.svc.cluster.local/observatory
           - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY
-            value: DEBUG      
+            value: DEBUG
+          - name: OIDC-CLIENT-REGISTRATION_CLIENT-AUTHENTICATION-METHOD  
+            value: client_secret_post
         ingress:
           enabled: true
           hosts:
