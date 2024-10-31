@@ -170,7 +170,7 @@ releases:
           keycloak_url: http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values.hostname }}/realms/observatory-config
           client_id: observatory-config
           client_secret: {{ .Values.auth.client_secret }}
-          keycloakRealmUrlInternal: http://auth.{{ .Values.hostname }}/realms/observatory-config
+          keycloakRealmUrlInternal: http://keycloak.{{ .Values.namespace }}.svc.cluster.local/realms/observatory-config
           keycloakRealmUrlExternal: https://auth.{{ .Values.hostname }}/realms/observatory-config
         postgresql:
           auth:
@@ -179,7 +179,9 @@ releases:
             password: observatory-config
         extraEnv: |
           - name: OBSERVATORY_URL
-            value: http://observatory-observatory-chart.{{ .Values.namespace }}.svc.cluster.local/observatory      
+            value: http://observatory.{{ .Values.namespace }}.svc.cluster.local/observatory
+          - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY
+            value: DEBUG      
         ingress:
           enabled: true
           hosts:
