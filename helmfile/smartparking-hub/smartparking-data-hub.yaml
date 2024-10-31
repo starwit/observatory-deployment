@@ -14,10 +14,11 @@ environments:
   default:
     values:
       - namespace: observatory-data
-        hostname: markus-laptop
+        hostname: infra-biggpu
         tls: false
         auth:
-          client_secret: observatory-config
+          client_secret: {{ requiredEnv "CLIENT_SECRET" }}
+          keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: {{ requiredEnv "KEYKLOAK_CLIENT_ADMIN_SECRET" }}
         dbpasswords: 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
