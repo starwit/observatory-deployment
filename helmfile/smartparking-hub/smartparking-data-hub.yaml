@@ -187,10 +187,10 @@ releases:
     installed: true
     namespace: {{ .Values.namespace }}
     chart: starwitorg/observatory-config-chart
-    version: 0.8.6
+    version: 0.8.7
     values:
       - image:
-          tag: 0.8.6
+          tag: 0.8.7
         app:
           databackendUrl: http://observatory.{{ .Values.namespace }}.svc.cluster.local/observatory
         auth:
