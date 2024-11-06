@@ -26,7 +26,7 @@ TODO
 With Helmfile you need a running Kubernetes cluster and your KUBECONFIG variable needs to point to an according config. If this is the case, the following command will install all components to namespace _aic_.
 
 ```bash
-    cd smartparking-hub
+    cd helmfile/smartparking-hub
     helmfile diff -f smartparking-data-hub.yaml -e wob-staging # check planned changes
     helmfile apply -f smartparking-data-hub.yaml -e wob-staging
 ```
@@ -44,7 +44,7 @@ The components of Starwit's implementation of AI cockpit can be found in the fol
 
 | Component       | Repository / URI                                       |             Description            |
 | ----------------| -------------------------------------------------------| ---------------------------------- |
-| Observatory Lens|<https://github.com/starwit/observatory-lens>           | Configuration of observation areas |
+| Observatory Lens|<https://github.com/starwit/observatory-config>         | Configuration of observation areas |
 | Observatory     |<https://github.com/starwit/observatory>                | Jobs for data analysis             |
 
 For more details about AI Cockpit visit project page: <https://www.kicockpit.eu/>
