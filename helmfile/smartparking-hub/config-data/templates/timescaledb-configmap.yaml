@@ -25,3 +25,14 @@ data:
         SELECT 'CREATE DATABASE "observatory" owner observatory'
         WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'observatory')\gexec
     __SQL__
+
+  custom-config-05.sh: |-
+    psql -d "$1" <<__SQL__
+            create user observatory-config password '{{ .Values.passwords.observatoryconfig }}';
+    __SQL__
+
+  custom-config-06.sh: |-
+    psql -d "$1" <<__SQL__
+        SELECT 'CREATE DATABASE "observatory-config" owner observatory-config'
+        WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'observatory-config')\gexec
+    __SQL__
