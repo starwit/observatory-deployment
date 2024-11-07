@@ -14,11 +14,6 @@ data:
             create user observatory password '{{ .Values.passwords.observatory }}';
     __SQL__
 
-  custom-config-05.sh: |-
-    psql -d "$1" <<__SQL__
-            create user observatoryconfig password '{{ .Values.passwords.observatoryconfig }}';
-    __SQL__
-
   custom-config-03.sh: |-
     psql -d "$1" <<__SQL__
         SELECT 'CREATE DATABASE "analytics" owner analytics'
@@ -31,8 +26,58 @@ data:
         WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'observatory')\gexec
     __SQL__
 
+  custom-config-05.sh: |-
+    psql -d "$1" <<__SQL__
+            create user observatoryconfig password '{{ .Values.passwords.observatoryconfig }}';
+    __SQL__
+
   custom-config-06.sh: |-
     psql -d "$1" <<__SQL__
         SELECT 'CREATE DATABASE "observatoryconfig" owner observatoryconfig'
         WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'observatoryconfig')\gexec
+    __SQL__
+
+  custom-config-07.sh: |-
+    psql -d "$1" <<__SQL__
+            create user saebackend password '{{ .Values.passwords.saebackend }}';
+    __SQL__
+
+  custom-config-08.sh: |-
+    psql -d "$1" <<__SQL__
+        SELECT 'CREATE DATABASE "saebackend" owner saebackend'
+        WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'saebackend')\gexec
+    __SQL__
+
+  custom-config-09.sh: |-
+    psql -d "saebackend" -U "saebackend" <<__SQL__
+        CREATE TABLE IF NOT EXISTS public.detection
+        (
+            "detection_id" integer,
+            "capture_ts" timestamp with time zone NOT NULL,
+            "camera_id" character varying COLLATE pg_catalog."default",
+            "object_id" character varying COLLATE pg_catalog."default",
+            "class_id" integer,
+            "confidence" double precision,
+            "min_x" real,
+            "min_y" real,
+            "max_x" real,
+            "max_y" real,
+            "latitude" double precision,
+            "longitude" double precision
+        );
+        SELECT create_hypertable('detection', 'capture_ts', if_not_exists => TRUE);
+
+        CREATE INDEX IF NOT EXISTS detection_camera_id
+            ON public.detection USING btree
+            ("camera_id" COLLATE pg_catalog."default" ASC NULLS LAST)
+            TABLESPACE pg_default;
+            
+        CREATE INDEX IF NOT EXISTS detection_object_id
+            ON public.detection USING btree
+            ("object_id" COLLATE pg_catalog."default" ASC NULLS LAST)
+            TABLESPACE pg_default;
+
+        SELECT add_retention_policy('detection', INTERVAL '30 days', if_not_exists => TRUE);
+        
+        SELECT set_chunk_time_interval('detection', INTERVAL '24 hours');
     __SQL__

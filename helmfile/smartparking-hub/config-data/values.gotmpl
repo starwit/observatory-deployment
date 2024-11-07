@@ -9,6 +9,7 @@ auth:
   realm_admin_pw: {{ .Values.auth.realm_admin_pw }}
 
 passwords:
+  saebackend: {{ .Values.dbpasswords.saebackend }}
   observatoryconfig: {{ .Values.dbpasswords.observatoryconfig }}
   observatory: {{ .Values.dbpasswords.observatory }}
   analytics: {{ .Values.dbpasswords.analytics }}

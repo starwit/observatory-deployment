@@ -24,6 +24,7 @@ environments:
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: {{ requiredEnv "KEYKLOAK_CLIENT_ADMIN_SECRET" }}
         dbpasswords: 
+          saebackend: {{ requiredEnv "DB_SAEBACKEND_SECRET" }}
           observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
@@ -37,6 +38,7 @@ environments:
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: {{ requiredEnv "KEYKLOAK_CLIENT_ADMIN_SECRET" }}
         dbpasswords: 
+          saebackend: {{ requiredEnv "DB_SAEBACKEND_SECRET" }}
           observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
@@ -50,6 +52,7 @@ environments:
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: {{ requiredEnv "KEYKLOAK_CLIENT_ADMIN_SECRET" }}
         dbpasswords: 
+          saebackend: {{ requiredEnv "DB_SAEBACKEND_SECRET" }}
           observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
@@ -63,6 +66,7 @@ environments:
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: {{ requiredEnv "KEYKLOAK_CLIENT_ADMIN_SECRET" }}
         dbpasswords: 
+          saebackend: {{ requiredEnv "DB_SAEBACKEND_SECRET" }}
           observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
