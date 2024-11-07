@@ -229,10 +229,10 @@ releases:
     installed: true
     namespace: {{ .Values.namespace }}
     chart: starwitorg/observatory-chart
-    version: 1.2.8
+    version: 1.2.9
     values:
       - image:
-          tag: 1.2.8
+          tag: 1.2.9
         app:
           port: 8081
         sae:
