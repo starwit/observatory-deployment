@@ -14,6 +14,11 @@ data:
             create user observatory password '{{ .Values.passwords.observatory }}';
     __SQL__
 
+  custom-config-05.sh: |-
+    psql -d "$1" <<__SQL__
+            create user observatoryconfig password '{{ .Values.passwords.observatoryconfig }}';
+    __SQL__
+
   custom-config-03.sh: |-
     psql -d "$1" <<__SQL__
         SELECT 'CREATE DATABASE "analytics" owner analytics'
@@ -24,4 +29,10 @@ data:
     psql -d "$1" <<__SQL__
         SELECT 'CREATE DATABASE "observatory" owner observatory'
         WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'observatory')\gexec
+    __SQL__
+
+  custom-config-06.sh: |-
+    psql -d "$1" <<__SQL__
+        SELECT 'CREATE DATABASE "observatoryconfig" owner observatoryconfig'
+        WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'observatoryconfig')\gexec
     __SQL__

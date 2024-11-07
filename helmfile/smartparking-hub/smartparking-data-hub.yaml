@@ -24,6 +24,7 @@ environments:
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: {{ requiredEnv "KEYKLOAK_CLIENT_ADMIN_SECRET" }}
         dbpasswords: 
+          observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
   wob-dev:
@@ -36,6 +37,7 @@ environments:
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: {{ requiredEnv "KEYKLOAK_CLIENT_ADMIN_SECRET" }}
         dbpasswords: 
+          observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
   wob-staging:
@@ -48,6 +50,7 @@ environments:
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: {{ requiredEnv "KEYKLOAK_CLIENT_ADMIN_SECRET" }}
         dbpasswords: 
+          observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
   wob-prod:
@@ -60,6 +63,7 @@ environments:
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: {{ requiredEnv "KEYKLOAK_CLIENT_ADMIN_SECRET" }}
         dbpasswords: 
+          observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
 ---
@@ -187,10 +191,10 @@ releases:
     installed: true
     namespace: {{ .Values.namespace }}
     chart: starwitorg/observatory-config-chart
-    version: 0.8.7
+    version: 0.8.7-1
     values:
       - image:
-          tag: 0.8.7
+          tag: 0.8.7-1
         app:
           databackendUrl: http://observatory.{{ .Values.namespace }}.svc.cluster.local/observatory
         auth:
@@ -199,11 +203,13 @@ releases:
           keycloakRealmUrlExternal: http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values.hostname }}/realms/observatory-config
           clientId: observatory-config
           clientSecret: {{ .Values.auth.client_secret }}
-        postgresql:
-          auth:
-            database: observatory-config
-            username: observatory-config
-            password: observatory-config
+        database:
+          internal: false
+          host: timescaledb.{{ .Values.namespace }}.svc.cluster.local
+          port: 5432          
+          name: observatoryconfig
+          username: observatoryconfig
+          password: {{ .Values.dbpasswords.observatoryconfig }}
         extraEnv: |
           - name: OIDC-CLIENT-REGISTRATION_CLIENT-AUTHENTICATION-METHOD  
             value: client_secret_post
@@ -223,10 +229,10 @@ releases:
     installed: true
     namespace: {{ .Values.namespace }}
     chart: starwitorg/observatory-chart
-    version: 1.2.8
+    version: 1.2.9
     values:
       - image:
-          tag: 1.2.8
+          tag: 1.2.9
         app:
           port: 8081
         sae:
