@@ -207,8 +207,8 @@ releases:
           internal: false
           host: timescaledb.{{ .Values.namespace }}.svc.cluster.local
           port: 5432          
-          name: observatory-config
-          username: observatory-config
+          name: observatoryconfig
+          username: observatoryconfig
           password: {{ .Values.dbpasswords.observatoryconfig }}
         extraEnv: |
           - name: OIDC-CLIENT-REGISTRATION_CLIENT-AUTHENTICATION-METHOD  
