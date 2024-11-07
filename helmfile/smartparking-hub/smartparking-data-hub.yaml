@@ -236,7 +236,7 @@ releases:
         app:
           port: 8081
         sae:
-          redisStreamPrefix: saeoutput
+          redisStreamPrefix: meckauer
           redisHost: valkey-primary
           redisPort: 6379
         databases:
