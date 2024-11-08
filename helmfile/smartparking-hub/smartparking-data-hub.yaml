@@ -200,7 +200,7 @@ releases:
       - image:
           tag: 0.8.7-1
         app:
-          databackendUrl: http://observatory.{{ .Values.namespace }}.svc.cluster.local/observatory
+          observatoryUrl: http://observatory.{{ .Values.namespace }}.svc.cluster.local/observatory
         auth:
           enabled: true
           keycloakRealmUrlInternal: http://keycloak.{{ .Values.namespace }}.svc.cluster.local/realms/observatory-config
