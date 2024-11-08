@@ -56,6 +56,7 @@ environments:
           observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
+        odp_password: {{ requiredEnv "ODP_PASSWORD" }}
   wob-prod:
     values:
       - namespace: observatory-data
@@ -195,10 +196,10 @@ releases:
     installed: true
     namespace: {{ .Values.namespace }}
     chart: starwitorg/observatory-config-chart
-    version: 0.8.7-1
+    version: 0.8.8
     values:
       - image:
-          tag: 0.8.7-1
+          tag: 0.8.8
         app:
           observatoryUrl: http://observatory.{{ .Values.namespace }}.svc.cluster.local/observatory
         auth:
@@ -260,3 +261,25 @@ releases:
         extraEnv: |
           - name: JAVA_TOOL_OPTIONS
             value: "-Xmx1024m"
+
+  - name: odp-adapter
+    installed: true
+    namespace: {{ .Values.namespace }}
+    chart: starwitorg/odp-adapter-chart
+    version: 0.0.1-5
+    values:
+      - image:
+          tag: odp-adapter-0.0.1-5
+        odp:
+          url: https://api.staging.wolfsburg.digital/context/v2/entities/
+          auth_url: https://auth.staging.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
+          username: meckauer
+          password: {{ .Values.odp_password }}
+          parkingareaid: OffStreetParking-Pkpd-787878
+          analytics_observation_area: parking
+        analytics_db:
+          url: jdbc:postgresql://timescaledb.{{ .Values.namespace }}.svc.cluster.local:5432/analytics
+          driver: org.postgresql.Driver
+          username: analytics
+          password: {{ .Values.dbpasswords.analytics }} 
+
