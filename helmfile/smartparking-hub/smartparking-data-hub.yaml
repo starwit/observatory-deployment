@@ -266,15 +266,16 @@ releases:
     installed: true
     namespace: {{ .Values.namespace }}
     chart: starwitorg/odp-adapter-chart
-    version: 0.0.1-5
+    version: 0.0.2
     values:
       - image:
-          tag: odp-adapter-0.0.1-5
+          tag: odp-adapter-0.0.2
         odp:
           url: https://api.staging.wolfsburg.digital/context/v2/entities/
           auth_url: https://auth.staging.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
           username: meckauer
           password: {{ .Values.odp_password }}
+          update_frequency: 30000 # update every n milliseconds
           parkingareaid: OffStreetParking-Pkpd-787878
           analytics_observation_area: parking
         analytics_db:
