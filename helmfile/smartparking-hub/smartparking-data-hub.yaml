@@ -18,7 +18,7 @@ environments:
     values:
       - namespace: observatory-data
         hostname: infra-biggpu
-        tls: true
+        tls: false
         auth:
           client_secret: {{ requiredEnv "CLIENT_SECRET" }}
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
@@ -28,6 +28,7 @@ environments:
           observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
+        odp_password: {{ requiredEnv "ODP_PASSWORD" }}
   wob-dev:
     values:  
       - namespace: observatory-data
@@ -42,6 +43,7 @@ environments:
           observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
+        odp_password: {{ requiredEnv "ODP_PASSWORD" }}
   wob-staging:
     values:
       - namespace: observatory-data
@@ -71,6 +73,7 @@ environments:
           observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
+        odp_password: {{ requiredEnv "ODP_PASSWORD" }}
 ---
 releases:
   - name: config-data
@@ -81,6 +84,7 @@ releases:
       - config-data/values.gotmpl
 
   - name: keycloak
+    installed: true
     namespace: {{ .Values.namespace }}
     chart: bitnamicharts/keycloak
     version: "24.0.2"
@@ -111,6 +115,7 @@ releases:
           existingConfigmap: observatory
 
   - name: timescaledb
+    installed: true
     namespace: {{ .Values.namespace }}
     chart: timescale/timescaledb-single
     version: 0.33.1  
@@ -126,6 +131,7 @@ releases:
               optional: true
 
   - name: valkey
+    installed: true
     namespace: {{ .Values.namespace }}
     chart: bitnamicharts/valkey
     version: 2.0.2
@@ -145,6 +151,7 @@ releases:
           appendonly no
 
   - name: grafana
+    installed: true
     namespace: {{ .Values.namespace }}
     chart: grafana/grafana
     version: 7.3.7  
@@ -191,6 +198,20 @@ releases:
             api_url: 'http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values | get "hostname" "localhost" }}/realms/observatory-config/protocol/openid-connect/userinfo'
             role_attribute_path: contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'dev') && 'Editor' || 'Viewer'
             allow_assign_grafana_admin: true
+        dashboardProviders:
+          dashboardproviders.yaml:
+            apiVersion: 1
+            providers:
+            - name: 'default'
+              orgId: 1
+              folder: ''
+              type: file
+              disableDeletion: false
+              editable: true
+              options:
+                path: /var/lib/grafana/dashboards/default
+        dashboardsConfigMaps:
+          default: "grafana-dashboards"
 
   - name: observatory-config
     installed: true
@@ -266,10 +287,10 @@ releases:
     installed: true
     namespace: {{ .Values.namespace }}
     chart: starwitorg/odp-adapter-chart
-    version: 0.0.2
+    version: 0.0.5
     values:
       - image:
-          tag: odp-adapter-0.0.2
+          tag: 0.0.5
         odp:
           url: https://api.staging.wolfsburg.digital/context/v2/entities/
           auth_url: https://auth.staging.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
