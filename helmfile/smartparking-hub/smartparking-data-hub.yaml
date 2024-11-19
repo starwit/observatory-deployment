@@ -131,7 +131,7 @@ releases:
               optional: true
 
   - name: valkey
-    installed: false
+    installed: true
     namespace: {{ .Values.namespace }}
     chart: bitnamicharts/valkey
     version: 2.0.2
