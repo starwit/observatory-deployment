@@ -28,7 +28,10 @@ environments:
           observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
-        odp_password: {{ requiredEnv "ODP_PASSWORD" }}
+        odp:
+          url: https://api.staging.wolfsburg.digital/context/v2/entities/
+          auth_url: https://auth.staging.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
+          password: {{ requiredEnv "ODP_PASSWORD" }}
   wob-dev:
     values:  
       - namespace: observatory-data
@@ -43,7 +46,10 @@ environments:
           observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
-        odp_password: {{ requiredEnv "ODP_PASSWORD" }}
+        odp:
+          url: https://api.staging.wolfsburg.digital/context/v2/entities/
+          auth_url: https://auth.staging.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
+          password: {{ requiredEnv "ODP_PASSWORD" }}
   wob-staging:
     values:
       - namespace: observatory-data
@@ -58,7 +64,10 @@ environments:
           observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
-        odp_password: {{ requiredEnv "ODP_PASSWORD" }}
+        odp:
+          url: https://api.staging.wolfsburg.digital/context/v2/entities/
+          auth_url: https://auth.staging.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
+          password: {{ requiredEnv "ODP_PASSWORD" }}
   wob-prod:
     values:
       - namespace: observatory-data
@@ -73,7 +82,10 @@ environments:
           observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
           observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
-        odp_password: {{ requiredEnv "ODP_PASSWORD" }}
+        odp:
+          url: https://api.wolfsburg.digital/context/v2/entities/
+          auth_url: https://auth.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
+          password: {{ requiredEnv "ODP_PASSWORD" }}
 ---
 releases:
   - name: config-data
@@ -292,10 +304,10 @@ releases:
       - image:
           tag: 0.0.6
         odp:
-          url: https://api.staging.wolfsburg.digital/context/v2/entities/
-          auth_url: https://auth.staging.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
+          url: {{ .Values.odp.url }}
+          auth_url: {{ .Values.odp.auth_url }}
           username: meckauer
-          password: {{ .Values.odp_password }}
+          password: {{ .Values.odp.password }}
           update_frequency: 30000 # update every n milliseconds
           parkingareaid: OnStreetParking:38444039
           analytics_observation_area: parking
