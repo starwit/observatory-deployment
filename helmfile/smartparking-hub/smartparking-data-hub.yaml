@@ -267,11 +267,9 @@ releases:
     installed: true
     namespace: {{ .Values.namespace }}
     chart: starwitorg/observatory-chart
-    version: 1.2.9
+    version: 1.3.1
     values:
-      - image:
-          tag: 1.2.9
-        app:
+      - app:
           port: 8081
         sae:
           redisStreamPrefix: meckauer
@@ -291,6 +289,7 @@ releases:
             database: analytics
             username: analytics
             password: {{ .Values.dbpasswords.analytics }}
+            isTimescale: true
         extraEnv: |
           - name: JAVA_TOOL_OPTIONS
             value: "-Xmx1024m"
@@ -299,11 +298,9 @@ releases:
     installed: true
     namespace: {{ .Values.namespace }}
     chart: starwitorg/odp-adapter-chart
-    version: 0.0.6
+    version: 0.0.8
     values:
-      - image:
-          tag: 0.0.6
-        odp:
+      - odp:
           url: {{ .Values.odp.url }}
           auth_url: {{ .Values.odp.auth_url }}
           username: meckauer
