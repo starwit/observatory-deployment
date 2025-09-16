@@ -65,6 +65,7 @@ environments:
           password: none
         observatory:
           installed: true
+          redisStreamPrefix: "geomapper"
         observatoryconfig:
           installed: true
         visualizer:
@@ -93,6 +94,7 @@ environments:
           password: {{ requiredEnv "ODP_PASSWORD" }}
         observatory:
           installed: true
+          redisStreamPrefix: "meckauer"
         observatoryconfig:
           installed: true
         visualizer:
@@ -121,6 +123,7 @@ environments:
           password: {{ requiredEnv "ODP_PASSWORD" }}
         observatory:
           installed: true
+          redisStreamPrefix: "meckauer"
         observatoryconfig:
           installed: true
         visualizer:
@@ -149,6 +152,7 @@ environments:
           password: {{ requiredEnv "ODP_PASSWORD" }}
         observatory:
           installed: true
+          redisStreamPrefix: "meckauer"
         observatoryconfig:
           installed: true
         visualizer:
@@ -327,7 +331,7 @@ releases:
       - app:
           port: 8081
         sae:
-          redisStreamPrefix: meckauer
+          redisStreamPrefix: {{ .Values.observatory.redisStreamPrefix }}
           redisHost: valkey-primary
           redisPort: 6379
         databases:
