@@ -7,7 +7,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=supersecret
     volumes:
-      - ./timescaledb:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./timescaledb/custom_init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
       - "30001:5432"
     healthcheck:
@@ -15,34 +15,54 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
 
   observatory:
     image: ${IMAGE_REGISTRY}/observatory:${OBSERVATORY_VERSION}
     container_name: observatory
-    volumes:
-      - ./observatory:/code/
+    environment:
+      SERVER_PORT: 8080
+      SAE_REDISHOST: myvalkey
+      SPRING_DATASOURCE_URL: jdbc:postgresql://timescale-db:5432/observatory
+      ANALYTICS_DATASOURCE_URL: jdbc:postgresql://timescale-db:5432/analytics
     depends_on:
       - timescale-db
+    networks:
+      - backend
 
   observatory-config:
     image: ${IMAGE_REGISTRY}/observatory-config:${OBSERVATORY_CONFIG_VERSION}
     container_name: observatory-config
-    volumes:
-      - ./config/observatory:/app/config
-      - ./data:/app/data
+    environment:
+      SERVER_PORT: 8080
+      SPRING_DATASOURCE_URL: jdbc:postgresql://timescale-db:5432/observatoryconfig
+      SPRING_DATASOURCE_USERNAME: observatoryconfig
+      SPRING_DATASOURCE_PASSWORD: observatoryconfig
+      OBSERVATORY_URL: http://observatory:8080/observatory
     ports:
       - "8080:8080"
     depends_on:
-      - timescale-db      
+      - timescale-db
+    networks:
+      - backend        
 
   visualizer:
-    image: ${IMAGE_REGISTRY}/visualizer:${VISUALIZER_VERSION}
+    image: ${IMAGE_REGISTRY}/sae-visualizer:${VISUALIZER_VERSION}
     container_name: visualizer
-    volumes:
-      - ./config/visualizer:/app/config
-      - ./data:/app/data
+    environment:
+      SERVER_PORT: 8080
+      SPRING.REDIS.HOST: myvalkey
     ports:
       - "8081:8080"
+    networks:
+      - backend
+
+  myvalkey:
+    image: valkey/valkey:latest
+    container_name: valkey
+    networks:
+      - backend
 
   grafana:
     image: grafana/grafana:latest
@@ -50,8 +70,14 @@ services:
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=supersecret
     volumes:
-      - ./grafana:/var/lib/grafana
+       - ./grafana:/etc/grafana/provisioning/datasources
     ports:
       - "3000:3000"
     depends_on:
       - timescale-db
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge

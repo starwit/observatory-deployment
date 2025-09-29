@@ -1,25 +1,19 @@
--- init.sql
+
 CREATE USER analytics WITH PASSWORD 'analytics';
 CREATE DATABASE analytics OWNER analytics;
-
--- Optional: grant privileges
 GRANT ALL PRIVILEGES ON DATABASE analytics TO analytics;
 
--- init.sql
 CREATE USER observatory WITH PASSWORD 'observatory';
 CREATE DATABASE observatory OWNER observatory;
-
--- Optional: grant privileges
 GRANT ALL PRIVILEGES ON DATABASE observatory TO observatory;
 
--- init.sql
 CREATE USER observatoryconfig WITH PASSWORD 'observatoryconfig';
 CREATE DATABASE observatoryconfig OWNER observatoryconfig;
-
--- Optional: grant privileges
 GRANT ALL PRIVILEGES ON DATABASE observatoryconfig TO observatoryconfig;
 
+CREATE USER saebackend WITH PASSWORD 'saebackend';
 CREATE DATABASE saebackend OWNER saebackend;
+GRANT ALL PRIVILEGES ON DATABASE saebackend TO saebackend;
 
 CREATE TABLE IF NOT EXISTS public.detection
 (
