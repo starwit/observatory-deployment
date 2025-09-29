@@ -1,0 +1,57 @@
+name: observatory-stack
+
+services:
+  timescale-db:
+    image: timescale/timescaledb:latest-pg17
+    container_name: timescale-db
+    environment:
+      - POSTGRES_PASSWORD=supersecret
+    volumes:
+      - ./timescaledb:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "30001:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  observatory:
+    image: ${IMAGE_REGISTRY}/observatory:${OBSERVATORY_VERSION}
+    container_name: observatory
+    volumes:
+      - ./observatory:/code/
+    depends_on:
+      - timescale-db
+
+  observatory-config:
+    image: ${IMAGE_REGISTRY}/observatory-config:${OBSERVATORY_CONFIG_VERSION}
+    container_name: observatory-config
+    volumes:
+      - ./config/observatory:/app/config
+      - ./data:/app/data
+    ports:
+      - "8080:8080"
+    depends_on:
+      - timescale-db      
+
+  visualizer:
+    image: ${IMAGE_REGISTRY}/visualizer:${VISUALIZER_VERSION}
+    container_name: visualizer
+    volumes:
+      - ./config/visualizer:/app/config
+      - ./data:/app/data
+    ports:
+      - "8081:8080"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=supersecret
+    volumes:
+      - ./grafana:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - timescale-db
