@@ -46,7 +46,7 @@ environments:
   demonstration:
     values:
       - namespace: observatory-data
-        hostname: pod03.local
+        hostname: markus-laptop.local
         tls: false
         auth:
           enabled: false
