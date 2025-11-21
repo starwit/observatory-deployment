@@ -1,0 +1,139 @@
+repositories:
+  - name: starwitorg
+    url: registry-1.docker.io/starwitorg
+    oci: true
+
+environments: 
+  default:
+    values:
+      - DO_NOT_USE_THIS: 0
+  msuv2-the-pod01:
+    values:
+      - name: theater-einfahrt
+        position:
+          latitude: 52.41342104011871
+          longitude: 10.781614015489067
+        camera:
+          username: admin
+          passwordRef: ref+bw://0b714eaf-209f-4812-b239-b39a00e52f73/password
+  msuv2-the-pod02:
+    values:
+      - name: theater-west
+        position:
+          latitude: 52.41512026605879
+          longitude: 10.781922593670158
+        camera:
+          username: admin
+          passwordRef: ref+bw://74d5959c-f8eb-4efd-8342-b39a00e54ee5/password
+  msuv2-the-pod03:
+    values:
+      - name: theater-ost
+        position:
+          latitude: 52.41476528626111
+          longitude: 10.781968501302613
+        camera:
+          username: admin
+          passwordRef: ref+bw://c97affd7-cbfd-491d-9829-b39a00e57791/password
+
+---
+
+releases:
+  - name: sae
+    chart: starwitorg/sae
+    version: 7.1.2
+    namespace: sae
+    createNamespace: true
+    values:
+      - positionSource:
+          enabled: true
+          settingsYaml:
+            log_level: INFO
+            position_source:
+              type: static
+              lat: {{ .Values.position.latitude }}
+              lon: {{ .Values.position.longitude }}
+
+        videoSource:
+          settingsYamls:
+          - id: {{ .Values.name }}
+            uri: 'rtsp://{{ .Values.camera.username | urlquery }}:{{ .Values.camera.passwordRef | fetchSecretValue | urlquery }}@192.168.1.64/'
+            max_fps: 10
+            scale_width: 1280
+            jpeg_quality: 90
+            log_level: INFO
+
+        objectDetector:
+          customWeights: 
+            enabled: true
+            imageTag: 2025-09-12-yolov8m-openvino
+          settingsYaml:
+            log_level: INFO
+            model:
+              weights_path: custom_weights/yolov8m_openvino_model
+              device: intel:gpu
+              nms_agnostic: true
+              inference_size: [ 1280, 1280 ]
+              classes: [ 2, 5, 7 ]
+            drop_edge_detections: true
+            redis:
+              stream_ids:
+                - {{ .Values.name }}
+
+        objectTracker:
+          needsGpu: False
+          streamIds:
+            - {{ .Values.name }}
+          settingsYaml:
+            log_level: INFO
+            tracker_algorithm: OCSORT
+            tracker_config:
+              det_thresh: 0.2
+              max_age: 30
+              min_hits: 3
+              asso_threshold: 0.3
+              delta_t: 3
+              asso_func: 'iou'
+              inertia: 0.2
+              use_byte: False
+              Q_xy_scaling: 1
+              Q_s_scaling: 1
+
+        geoMapper:
+          enabled: true
+          settingsYaml:
+            log_level: INFO
+            cameras:
+              - stream_id: {{ .Values.name }}
+                passthrough: false
+                view_x_deg: 90
+                image_width_px: 1920
+                image_height_px: 1080
+                elevation_m: 10
+                tilt_deg: 45
+                pos_lat: 52
+                pos_lon: 10
+                heading_deg: 90
+                brown_distortion_k1: 0
+                brown_distortion_k2: 0
+                brown_distortion_k3: 0
+                remove_unmapped_detections: false
+
+        redisWriter:
+          enabled: true
+          instances:
+            - name: writer-staging
+              settingsYaml:
+                log_level: INFO
+                #remove_frame_data: null            # If frame data should be removed (default true; only applies to SAE messages; beware of privacy and bandwidth consequences!)
+                target_redis:
+                  host: 100.112.168.104
+                  port: 30379
+                  buffer_length: 10
+                  target_stream_maxlen: 100
+                  tls: false
+                mapping_config:
+                  - source: geomapper:{{ .Values.name }}
+                    target: geomapper:{{ .Values.name }}
+
+        databaseWriter:
+          enabled: false
