@@ -118,8 +118,8 @@ environments:
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
         odp:
           installed: true
-          url: https://api.staging.wolfsburg.digital/context/v2/entities/
-          auth_url: https://auth.staging.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
+          url: https://api.odp.staging.wolfsburg.digital/context/v2/entities/
+          auth_url: https://auth.odp.staging.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
           password: {{ requiredEnv "ODP_PASSWORD" }}
         observatory:
           installed: true
@@ -172,9 +172,11 @@ releases:
     installed: {{ .Values.keycloak.installed}}
     namespace: {{ .Values.namespace }}
     chart: bitnamicharts/keycloak
-    version: "25.2.0"
+    version: 24.0.2
     values:
-      - httpRelativePath: / # set context path for keycloak console
+      - image:
+          repository: bitnamilegacy/keycloak
+        httpRelativePath: / # set context path for keycloak console
         auth:
           adminUser: admin
           adminPassword: {{ .Values.auth.keycloak_admin }}
@@ -219,11 +221,11 @@ releases:
     installed: true
     namespace: {{ .Values.namespace }}
     chart: bitnamicharts/valkey
-    version: 3.0.31
+    version: 2.0.2
     values:
       - image:
           repository: bitnamilegacy/valkey
-          tag: latest
+          tag: 8.0.1-debian-12-r1
         architecture: standalone
         primary:
           service:
