@@ -2,7 +2,6 @@
 # Login once
 npx @bitwarden/cli login
 
-
 # Run this every time before deploying
 export BW_SESSION="$(npx @bitwarden/cli unlock --raw)"
 # Optionally run sync
