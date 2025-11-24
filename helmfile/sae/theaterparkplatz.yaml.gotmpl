@@ -61,6 +61,9 @@ releases:
             scale_width: 1280
             jpeg_quality: 90
             log_level: INFO
+            camera_position_source:
+              stream_id: "positionsource:self"
+              drop_frames_if_no_position: True
 
         objectDetector:
           customWeights: 
@@ -102,6 +105,8 @@ releases:
           enabled: true
           settingsYaml:
             log_level: INFO
+            mapping_strategy:
+              mode: static
             cameras:
               - stream_id: {{ .Values.name }}
                 passthrough: false
@@ -110,8 +115,8 @@ releases:
                 image_height_px: 1080
                 elevation_m: 10
                 tilt_deg: 45
-                pos_lat: 52
-                pos_lon: 10
+                pos_lat: {{ .Values.position.latitude }}
+                pos_lon: {{ .Values.position.longitude }}
                 heading_deg: 90
                 brown_distortion_k1: 0
                 brown_distortion_k2: 0
