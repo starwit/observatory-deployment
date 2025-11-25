@@ -1,0 +1,252 @@
+repositories:
+  - name: starwitorg
+    url: registry-1.docker.io/starwitorg
+    oci: true
+
+---
+
+releases:
+  - name: sae
+    chart: starwitorg/sae
+    version: 7.1.2
+    namespace: sae
+    createNamespace: true
+    values:
+      - databaseWriter:
+          config:
+            db:
+              hypertable: detection
+              jdbcUrl: jdbc:postgresql://100.112.168.104:30001/
+              password: {{ fetchSecretValue "ref+bw://ee82bb44-eba0-48ab-9c80-b3a000902595/password" }}
+              schema: saebackend
+              username: {{ fetchSecretValue "ref+bw://ee82bb44-eba0-48ab-9c80-b3a000902595/username" }}
+            redisStreamIds:
+            - meckauer-north
+            - meckauer-south
+            - meckauer-east
+            - meckauer-west
+          enabled: true
+          
+        geoMapper:
+          settingsYaml:
+            mapping_strategy:
+              mode: static
+            cameras:
+            - brown_distortion_k1: -0.3205775683423553
+              brown_distortion_k2: 0.06835772189745826
+              brown_distortion_k3: 0
+              elevation_m: 9.750873463000419
+              heading_deg: 83.28665708786522
+              image_height_px: 720
+              image_width_px: 1280
+              mapping_area:
+                coordinates:
+                - - - 10.787096772764224
+                    - 52.424080277899
+                  - - 10.78726764906682
+                    - 52.42434491610731
+                  - - 10.78701009810604
+                    - 52.424368216470306
+                  - - 10.78693130909344
+                    - 52.42411497641799
+                  - - 10.787096772764224
+                    - 52.424080277899
+                type: Polygon
+              passthrough: false
+              pos_lat: 52.42416804301217
+              pos_lon: 10.786926227454526
+              remove_unmapped_detections: false
+              roll_deg: 1.451322047263786
+              stream_id: meckauer-east
+              tilt_deg: 34.89977815983701
+              view_x_deg: 98
+            - brown_distortion_k1: -0.2836159635730888
+              brown_distortion_k2: 0.0438144175007354
+              brown_distortion_k3: 0
+              elevation_m: 9.837664481459656
+              heading_deg: 10.860781123214302
+              image_height_px: 720
+              image_width_px: 1280
+              mapping_area:
+                coordinates:
+                - - - 10.786752194120185
+                    - 52.42431456186525
+                  - - 10.78726080979424
+                    - 52.424274595156994
+                  - - 10.787303477591593
+                    - 52.42455332200221
+                  - - 10.786802804455235
+                    - 52.42460109016702
+                  - - 10.786752194120185
+                    - 52.42431456186525
+                type: Polygon
+              passthrough: false
+              pos_lat: 52.42416804301217
+              pos_lon: 10.786926227454526
+              remove_unmapped_detections: false
+              roll_deg: -2.8153535849970908
+              stream_id: meckauer-north
+              tilt_deg: 60.23730868825839
+              view_x_deg: 78
+            - brown_distortion_k1: -0.3642591635887667
+              brown_distortion_k2: 0.13690304367204442
+              brown_distortion_k3: 0
+              elevation_m: 10.239907398141582
+              heading_deg: 192.25415424271873
+              image_height_px: 720
+              image_width_px: 1280
+              mapping_area:
+                coordinates:
+                - - - 10.786720334358773
+                    - 52.424186906949004
+                  - - 10.787136839386493
+                    - 52.424141671986334
+                  - - 10.786856101118072
+                    - 52.423684495761506
+                  - - 10.786603426592702
+                    - 52.42376990903258
+                  - - 10.786720334358773
+                    - 52.424186906949004
+                type: Polygon
+              passthrough: false
+              pos_lat: 52.42416804301217
+              pos_lon: 10.786926227454526
+              remove_unmapped_detections: false
+              roll_deg: -2.349038854591525
+              stream_id: meckauer-south
+              tilt_deg: 42.880596818964804
+              view_x_deg: 97.5
+            - brown_distortion_k1: -0.18669333449908376
+              brown_distortion_k2: 0.023470466423026186
+              brown_distortion_k3: 0
+              elevation_m: 9.741087240333819
+              heading_deg: 311.48840848469496
+              image_height_px: 720
+              image_width_px: 1280
+              mapping_area:
+                coordinates:
+                - - - 10.786768622047525
+                    - 52.42437513478074
+                  - - 10.787004365640092
+                    - 52.42436121125783
+                  - - 10.786939975609606
+                    - 52.424133935311794
+                  - - 10.786721564672098
+                    - 52.42413337422841
+                  - - 10.786768622047525
+                    - 52.42437513478074
+                type: Polygon
+              passthrough: false
+              pos_lat: 52.42416804301217
+              pos_lon: 10.786926227454526
+              remove_unmapped_detections: false
+              roll_deg: -10.142669800887898
+              stream_id: meckauer-west
+              tilt_deg: 34.560425395037896
+              view_x_deg: 104.5
+            object_center_elevation_m: 1
+          enabled: true
+
+        objectDetector:
+          customWeights:
+            enabled: true
+            imageTag: tsp-2024-11-26-trrt-10.13.2.6
+          settingsYaml:
+            log_level: DEBUG
+            drop_edge_detections: true
+            model:
+              device: cuda
+              nms_agnostic: true
+              weights_path: custom_weights/weights.engine
+              inference_size:
+              - 1280
+              - 736
+              classes:
+              - 2
+              - 5
+              - 7
+            redis:
+              stream_ids:
+              - meckauer-north
+              - meckauer-south
+              - meckauer-east
+              - meckauer-west
+
+        objectTracker:
+          settingsYaml:
+            log_level: INFO
+            tracker_algorithm: OCSORT
+            tracker_config:
+              Q_s_scaling: 1
+              Q_xy_scaling: 1
+              asso_func: iou
+              asso_threshold: 0.3
+              delta_t: 3
+              det_thresh: 0.2
+              inertia: 0.2
+              max_age: 30
+              min_hits: 3
+              use_byte: false
+          needsGpu: false
+          streamIds:
+          - meckauer-north
+          - meckauer-south
+          - meckauer-east
+          - meckauer-west
+
+        redisWriter:
+          enabled: true
+          instances:
+          - name: staging
+            settingsYaml:
+              target_redis:
+                buffer_length: 1000
+                host: 100.112.168.104
+                port: 30379
+                target_stream_maxlen: 1000
+                tls: false
+              mapping_config:
+                - source: geomapper:meckauer-north
+                - source: geomapper:meckauer-south
+                - source: geomapper:meckauer-east
+                - source: geomapper:meckauer-west
+          - name: prod
+            settingsYaml:
+              target_redis:
+                buffer_length: 1000
+                host: 100.72.130.57
+                port: 30379
+                target_stream_maxlen: 1000
+                tls: false
+              mapping_config:
+                - source: geomapper:meckauer-north
+                - source: geomapper:meckauer-south
+                - source: geomapper:meckauer-east
+                - source: geomapper:meckauer-west
+
+        videoSource:
+          settingsYamls:
+          - id: meckauer-south
+            log_level: DEBUG
+            jpeg_quality: 95
+            max_fps: 10
+            scale_width: 1280
+            uri: rtsp://10.30.4.219:8554/rtsp
+          - id: meckauer-east
+            log_level: DEBUG
+            jpeg_quality: 95
+            max_fps: 10
+            scale_width: 1280
+            uri: rtsp://10.30.4.220:8554/rtsp
+          - id: meckauer-west
+            log_level: DEBUG
+            jpeg_quality: 95
+            max_fps: 10
+            scale_width: 1280
+            uri: rtsp://10.30.4.221:8554/rtsp
+          - id: meckauer-north
+            log_level: DEBUG
+            jpeg_quality: 95
+            max_fps: 10
+            scale_width: 1280
+            uri: rtsp://10.30.4.222:8554/rtsp
