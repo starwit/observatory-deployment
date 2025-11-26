@@ -31,8 +31,8 @@ environments:
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
         odp:
           installed: true
-          url: https://api.staging.wolfsburg.digital/context/v2/entities/
-          auth_url: https://auth.staging.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
+          url: https://api.odp.staging.wolfsburg.digital/context/v2/entities/
+          auth_url: https://auth.odp.staging.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
           password: {{ requiredEnv "ODP_PASSWORD" }}
         observatory:
           installed: true
@@ -89,8 +89,8 @@ environments:
           analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
         odp:
           installed: true
-          url: https://api.staging.wolfsburg.digital/context/v2/entities/
-          auth_url: https://auth.staging.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
+          url: https://api.odp.staging.wolfsburg.digital/context/v2/entities/
+          auth_url: https://auth.odp.staging.wolfsburg.digital/auth/realms/default/protocol/openid-connect/token
           password: {{ requiredEnv "ODP_PASSWORD" }}
         observatory:
           installed: true
@@ -358,7 +358,7 @@ releases:
           - name: JAVA_TOOL_OPTIONS
             value: "-Xmx1024m"
 
-  - name: odp-adapter
+  - name: odp-adapter-meckauer
     installed: {{ .Values.odp.installed}}
     namespace: {{ .Values.namespace }}
     chart: starwitorg/odp-adapter-chart
@@ -370,8 +370,36 @@ releases:
           username: meckauer
           password: {{ .Values.odp.password }}
           update_frequency: 30000 # update every n milliseconds
-          parkingareaid: OnStreetParking:38444039
-          analytics_observation_area: parking
+          data_sync_frequency: 86400000 # sync data every 24 hours
+          defaulttotal: 64
+          servicepath: /ParkingManagement/Meckauerweg
+        analytics:
+          disabled_area_prefix: disable
+          observation_area_prefix: parking
+        analytics_db:
+          url: jdbc:postgresql://timescaledb.{{ .Values.namespace }}.svc.cluster.local:5432/analytics
+          driver: org.postgresql.Driver
+          username: analytics
+          password: {{ .Values.dbpasswords.analytics }} 
+
+  - name: odp-adapter-theater
+    installed: {{ .Values.odp.installed}}
+    namespace: {{ .Values.namespace }}
+    chart: starwitorg/odp-adapter-chart
+    version: 0.0.8
+    values:
+      - odp:
+          url: {{ .Values.odp.url }}
+          auth_url: {{ .Values.odp.auth_url }}
+          username: meckauer
+          password: {{ .Values.odp.password }}
+          update_frequency: 30000 # update every n milliseconds
+          data_sync_frequency: 86400000 # sync data every 24 hours
+          defaulttotal: 233
+          servicepath: /ParkingManagement/TheaterParkplatz
+        analytics:
+          disabled_area_prefix: disable
+          observation_area_prefix: parking
         analytics_db:
           url: jdbc:postgresql://timescaledb.{{ .Values.namespace }}.svc.cluster.local:5432/analytics
           driver: org.postgresql.Driver
