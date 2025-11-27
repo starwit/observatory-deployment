@@ -362,7 +362,7 @@ releases:
     installed: {{ .Values.odp.installed}}
     namespace: {{ .Values.namespace }}
     chart: starwitorg/odp-adapter-chart
-    version: 0.0.8
+    version: 0.0.10
     values:
       - odp:
           url: {{ .Values.odp.url }}
@@ -374,8 +374,8 @@ releases:
           defaulttotal: 64
           servicepath: /ParkingManagement/Meckauerweg
         analytics:
-          disabled_area_prefix: disable
-          observation_area_prefix: parking
+          disabled_area_prefix: disabled-space
+          observation_area_prefix: parking-meckauer
         analytics_db:
           url: jdbc:postgresql://timescaledb.{{ .Values.namespace }}.svc.cluster.local:5432/analytics
           driver: org.postgresql.Driver
@@ -386,7 +386,7 @@ releases:
     installed: {{ .Values.odp.installed}}
     namespace: {{ .Values.namespace }}
     chart: starwitorg/odp-adapter-chart
-    version: 0.0.8
+    version: 0.0.10
     values:
       - odp:
           url: {{ .Values.odp.url }}
@@ -398,8 +398,8 @@ releases:
           defaulttotal: 233
           servicepath: /ParkingManagement/TheaterParkplatz
         analytics:
-          disabled_area_prefix: disable
-          observation_area_prefix: parking
+          disabled_area_prefix: theater-disabled
+          observation_area_prefix: theater-parking
         analytics_db:
           url: jdbc:postgresql://timescaledb.{{ .Values.namespace }}.svc.cluster.local:5432/analytics
           driver: org.postgresql.Driver
