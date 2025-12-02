@@ -8,7 +8,7 @@ repositories:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 7.1.2
+    version: 8.0.0
     namespace: sae
     createNamespace: true
     values:
@@ -27,14 +27,22 @@ releases:
             - meckauer-west
           enabled: true
           
+        positionSource:
+          enabled: true
+          settingsYaml:
+            log_level: INFO
+            position_source:
+              type: static
+              lat: 52.42416804301217
+              lon: 10.786926227454526
+        
         geoMapper:
           settingsYaml:
-            mapping_strategy:
-              mode: static
             cameras:
             - brown_distortion_k1: -0.3205775683423553
               brown_distortion_k2: 0.06835772189745826
               brown_distortion_k3: 0
+              mode: map
               elevation_m: 9.750873463000419
               heading_deg: 83.28665708786522
               image_height_px: 720
@@ -52,9 +60,6 @@ releases:
                   - - 10.787096772764224
                     - 52.424080277899
                 type: Polygon
-              passthrough: false
-              pos_lat: 52.42416804301217
-              pos_lon: 10.786926227454526
               remove_unmapped_detections: false
               roll_deg: 1.451322047263786
               stream_id: meckauer-east
@@ -67,6 +72,7 @@ releases:
               heading_deg: 10.860781123214302
               image_height_px: 720
               image_width_px: 1280
+              mode: map
               mapping_area:
                 coordinates:
                 - - - 10.786752194120185
@@ -80,9 +86,6 @@ releases:
                   - - 10.786752194120185
                     - 52.42431456186525
                 type: Polygon
-              passthrough: false
-              pos_lat: 52.42416804301217
-              pos_lon: 10.786926227454526
               remove_unmapped_detections: false
               roll_deg: -2.8153535849970908
               stream_id: meckauer-north
@@ -95,6 +98,7 @@ releases:
               heading_deg: 192.25415424271873
               image_height_px: 720
               image_width_px: 1280
+              mode: map
               mapping_area:
                 coordinates:
                 - - - 10.786720334358773
@@ -108,9 +112,6 @@ releases:
                   - - 10.786720334358773
                     - 52.424186906949004
                 type: Polygon
-              passthrough: false
-              pos_lat: 52.42416804301217
-              pos_lon: 10.786926227454526
               remove_unmapped_detections: false
               roll_deg: -2.349038854591525
               stream_id: meckauer-south
@@ -123,6 +124,7 @@ releases:
               heading_deg: 311.48840848469496
               image_height_px: 720
               image_width_px: 1280
+              mode: map
               mapping_area:
                 coordinates:
                 - - - 10.786768622047525
@@ -136,9 +138,6 @@ releases:
                   - - 10.786768622047525
                     - 52.42437513478074
                 type: Polygon
-              passthrough: false
-              pos_lat: 52.42416804301217
-              pos_lon: 10.786926227454526
               remove_unmapped_detections: false
               roll_deg: -10.142669800887898
               stream_id: meckauer-west
@@ -232,21 +231,33 @@ releases:
             max_fps: 10
             scale_width: 1280
             uri: rtsp://10.30.4.219:8554/rtsp
+            camera_position_source:
+              stream_id: "positionsource:self"
+              drop_frames_if_no_position: True
           - id: meckauer-east
             log_level: DEBUG
             jpeg_quality: 95
             max_fps: 10
             scale_width: 1280
             uri: rtsp://10.30.4.220:8554/rtsp
+            camera_position_source:
+              stream_id: "positionsource:self"
+              drop_frames_if_no_position: True
           - id: meckauer-west
             log_level: DEBUG
             jpeg_quality: 95
             max_fps: 10
             scale_width: 1280
             uri: rtsp://10.30.4.221:8554/rtsp
+            camera_position_source:
+              stream_id: "positionsource:self"
+              drop_frames_if_no_position: True
           - id: meckauer-north
             log_level: DEBUG
             jpeg_quality: 95
             max_fps: 10
             scale_width: 1280
             uri: rtsp://10.30.4.222:8554/rtsp
+            camera_position_source:
+              stream_id: "positionsource:self"
+              drop_frames_if_no_position: True
