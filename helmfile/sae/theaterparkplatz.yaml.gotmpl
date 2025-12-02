@@ -40,7 +40,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 7.1.2
+    version: 8.0.0
     namespace: sae
     createNamespace: true
     values:
@@ -105,18 +105,14 @@ releases:
           enabled: true
           settingsYaml:
             log_level: INFO
-            mapping_strategy:
-              mode: static
             cameras:
               - stream_id: {{ .Values.name }}
-                passthrough: false
+                mode: map
                 view_x_deg: 90
                 image_width_px: 1920
                 image_height_px: 1080
                 elevation_m: 10
                 tilt_deg: 45
-                pos_lat: {{ .Values.position.latitude }}
-                pos_lon: {{ .Values.position.longitude }}
                 heading_deg: 90
                 brown_distortion_k1: 0
                 brown_distortion_k2: 0
