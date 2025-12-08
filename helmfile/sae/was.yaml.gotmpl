@@ -1,0 +1,147 @@
+repositories:
+  - name: starwitorg
+    url: registry-1.docker.io/starwitorg
+    oci: true
+
+environments: 
+  default:
+    values:
+      - DO_NOT_USE_THIS: 0
+  msuv2-was-pod01:
+    values:
+      - name: was-pod01
+        camera:
+          username: admin
+          passwordRef: ref+bw://ced7f8be-3b32-4ccd-b846-b3a700a524b0/password
+
+---
+
+releases:
+  - name: sae
+    chart: starwitorg/sae
+    version: 8.1.0
+    namespace: sae
+    createNamespace: true
+    values:
+      - positionSource:
+          enabled: true
+          settingsYaml:
+            log_level: INFO
+            position_source:
+              type: static
+              lat: 52
+              lon: 10
+
+        videoSource:
+          settingsYamls:
+          - id: {{ .Values.name }}
+            # uri: 'rtsp://{{ .Values.camera.username | urlquery }}:{{ .Values.camera.passwordRef | fetchSecretValue | urlquery }}@192.168.1.64/'
+            uri: 'rtsp://203.0.113.1:8554/video-stream'
+            max_fps: 10
+            scale_width: 1280
+            jpeg_quality: 90
+            log_level: INFO
+            camera_position_source:
+              stream_id: "positionsource:self"
+              drop_frames_if_no_position: True
+
+        cleaningStatusFilter:
+          enabled: true
+          detectionWeights: 
+            imageTag: mirror-detection-0.1.0
+          settingsYaml:
+            log_level: DEBUG
+            mirror_detection:
+              y_up_threshold: 0.7
+              y_down_threshold: 0.75
+              required_stable_readings: 5
+              interval_s: 1.0
+              model:
+                weights_path: custom_weights/mirror-detection_openvino_model
+                device: intel:cpu
+                confidence_threshold: 0.5
+                iou_threshold: 0.45
+                fp16: false
+                nms_agnostic: true
+                inference_size: [640, 640]
+            no_cleaning_areas: []   
+            redis:
+              stream_id: {{ .Values.name }}
+
+        objectDetector:
+          customWeights: 
+            enabled: true
+            imageTag: waste-detection-2025-11-17
+          settingsYaml:
+            log_level: INFO
+            model:
+              weights_path: custom_weights/waste-detection_openvino_model
+              device: intel:gpu
+              nms_agnostic: true
+              inference_size: [ 1280, 1280 ]
+            drop_edge_detections: false
+            redis:
+              stream_ids:
+                - {{ .Values.name }}
+              # input_stream_prefix: cleaningstatusfilter
+
+        objectTracker:
+          needsGpu: False
+          streamIds:
+            - {{ .Values.name }}
+          settingsYaml:
+            log_level: INFO
+            tracker_algorithm: OCSORT
+            tracker_config:
+              det_thresh: 0.2
+              max_age: 30
+              min_hits: 3
+              asso_threshold: 0.3
+              delta_t: 3
+              asso_func: 'iou'
+              inertia: 0.2
+              use_byte: False
+              Q_xy_scaling: 1
+              Q_s_scaling: 1
+
+        geoMapper:
+          enabled: true
+          settingsYaml:
+            log_level: INFO
+            cameras:
+              - stream_id: {{ .Values.name }}
+                mode: copy
+
+        detectionAggregator:
+          enabled: true
+          settingsYaml:
+            log_level: INFO
+            chunk:
+              buffer_size: 1
+              time_in_ms: 20
+              geo_coordinate:
+                latitude: 0
+                longitude: 0
+
+        redisWriter:
+          image:
+            tag: 2.1.0
+          enabled: true
+          instances:
+            - name: staging
+              settingsYaml:
+                log_level: DEBUG
+                #remove_frame_data: null            # If frame data should be removed (default true; only applies to SAE messages; beware of privacy and bandwidth consequences!)
+                target_redis:
+                  host: 100.112.168.104
+                  port: 30379
+                  buffer_length: 10
+                  target_stream_maxlen: 100
+                  tls: false
+                mapping_config:
+                  - source: geomapper:{{ .Values.name }}
+                    target: geomapper:{{ .Values.name }}
+                  - source: aggregator:{{ .Values.name }}
+                    target: aggregator:{{ .Values.name }}
+                  - source: positionsource:{{ .Values.name }}
+                    target: positionsource:{{ .Values.name }}
