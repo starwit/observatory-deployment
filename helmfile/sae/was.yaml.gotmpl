@@ -35,8 +35,7 @@ releases:
         videoSource:
           settingsYamls:
           - id: {{ .Values.name }}
-            # uri: 'rtsp://{{ .Values.camera.username | urlquery }}:{{ .Values.camera.passwordRef | fetchSecretValue | urlquery }}@192.168.1.64/'
-            uri: 'rtsp://203.0.113.1:8554/video-stream'
+            uri: 'rtsp://{{ .Values.camera.username | urlquery }}:{{ .Values.camera.passwordRef | fetchSecretValue | urlquery }}@192.168.1.64/'
             max_fps: 10
             scale_width: 1280
             jpeg_quality: 90
