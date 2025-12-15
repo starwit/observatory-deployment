@@ -12,22 +12,7 @@ releases:
     namespace: sae
     createNamespace: true
     values:
-      - databaseWriter:
-          config:
-            db:
-              hypertable: detection
-              jdbcUrl: jdbc:postgresql://100.112.168.104:30001/
-              password: {{ fetchSecretValue "ref+bw://ee82bb44-eba0-48ab-9c80-b3a000902595/password" }}
-              schema: saebackend
-              username: {{ fetchSecretValue "ref+bw://ee82bb44-eba0-48ab-9c80-b3a000902595/username" }}
-            redisStreamIds:
-            - meckauer-north
-            - meckauer-south
-            - meckauer-east
-            - meckauer-west
-          enabled: true
-          
-        positionSource:
+      - positionSource:
           enabled: true
           settingsYaml:
             log_level: INFO
