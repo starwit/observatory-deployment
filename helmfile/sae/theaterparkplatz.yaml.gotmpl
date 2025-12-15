@@ -57,7 +57,7 @@ releases:
           settingsYamls:
           - id: {{ .Values.name }}
             uri: 'rtsp://{{ .Values.camera.username | urlquery }}:{{ .Values.camera.passwordRef | fetchSecretValue | urlquery }}@192.168.1.64/'
-            max_fps: 10
+            max_fps: 5
             scale_width: 1280
             jpeg_quality: 90
             log_level: INFO
@@ -124,19 +124,6 @@ releases:
             tag: 2.1.0
           enabled: true
           instances:
-            - name: staging
-              settingsYaml:
-                log_level: DEBUG
-                #remove_frame_data: null            # If frame data should be removed (default true; only applies to SAE messages; beware of privacy and bandwidth consequences!)
-                target_redis:
-                  host: 100.112.168.104
-                  port: 30379
-                  buffer_length: 10
-                  target_stream_maxlen: 100
-                  tls: false
-                mapping_config:
-                  - source: geomapper:{{ .Values.name }}
-                    target: geomapper:{{ .Values.name }}
             - name: prod
               settingsYaml:
                 log_level: DEBUG
