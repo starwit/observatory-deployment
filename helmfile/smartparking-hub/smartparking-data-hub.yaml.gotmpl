@@ -195,10 +195,14 @@ releases:
             cert-manager.io/cluster-issuer: letsencrypt-prod
         postgresql:
           nameOverride: "keycloak-postgresql"
+          image:
+            repository: bitnamilegacy/postgresql
           auth:
             password: bn_keycloak
         keycloakConfigCli:
           enabled: true
+          image:
+            repository: bitnamilegacy/keycloak-config-cli
           existingConfigmap: observatory
 
   - name: timescaledb
@@ -331,7 +335,7 @@ releases:
     installed: {{ .Values.observatory.installed}}
     namespace: {{ .Values.namespace }}
     chart: starwitorg/observatory-chart
-    version: 1.4.0
+    version: 1.5.0
     values:
       - app:
           port: 8081
