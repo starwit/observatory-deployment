@@ -40,7 +40,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 8.0.0
+    version: 8.1.0
     namespace: sae
     createNamespace: true
     values:
@@ -120,8 +120,6 @@ releases:
                 remove_unmapped_detections: false
 
         redisWriter:
-          image:
-            tag: 2.1.0
           enabled: true
           instances:
             - name: prod
