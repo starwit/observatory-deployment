@@ -40,7 +40,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 8.0.0
+    version: 8.1.1
     namespace: sae
     createNamespace: true
     values:
@@ -68,14 +68,14 @@ releases:
         objectDetector:
           customWeights: 
             enabled: true
-            imageTag: 2025-09-12-yolov8m-openvino
+            imageTag: yolov8m-openvino-static-736x1280
           settingsYaml:
             log_level: INFO
             model:
               weights_path: custom_weights/yolov8m_openvino_model
               device: intel:gpu
               nms_agnostic: true
-              inference_size: [ 1280, 1280 ]
+              inference_size: [ 736, 1280 ]
               classes: [ 2, 5, 7 ]
             drop_edge_detections: true
             redis:
@@ -120,8 +120,6 @@ releases:
                 remove_unmapped_detections: false
 
         redisWriter:
-          image:
-            tag: 2.1.0
           enabled: true
           instances:
             - name: prod
