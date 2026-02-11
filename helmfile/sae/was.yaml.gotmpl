@@ -19,7 +19,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 8.1.0
+    version: 8.1.2
     namespace: sae
     createNamespace: true
     values:
@@ -28,9 +28,8 @@ releases:
           settingsYaml:
             log_level: INFO
             position_source:
-              type: static
-              lat: 52
-              lon: 10
+              type: command
+              command: ["gpspipe", "-r", "100.125.132.32:2947"]
 
         videoSource:
           settingsYamls:
@@ -45,7 +44,7 @@ releases:
               drop_frames_if_no_position: True
 
         cleaningStatusFilter:
-          enabled: true
+          enabled: false
           detectionWeights: 
             imageTag: mirror-detection-0.1.0
           settingsYaml:
@@ -115,6 +114,8 @@ releases:
           enabled: true
           settingsYaml:
             log_level: INFO
+            redis:
+              stream_id: {{ .Values.name }}
             chunk:
               buffer_size: 1
               time_in_ms: 20
@@ -142,5 +143,5 @@ releases:
                     target: geomapper:{{ .Values.name }}
                   - source: aggregator:{{ .Values.name }}
                     target: aggregator:{{ .Values.name }}
-                  - source: positionsource:{{ .Values.name }}
+                  - source: positionsource:self
                     target: positionsource:{{ .Values.name }}
