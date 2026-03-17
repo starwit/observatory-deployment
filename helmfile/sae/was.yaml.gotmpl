@@ -3,16 +3,24 @@ repositories:
     url: registry-1.docker.io/starwitorg
     oci: true
 
-environments: 
+environments:
   default:
     values:
       - DO_NOT_USE_THIS: 0
   msuv2-was-pod01:
     values:
       - name: was-pod01
+        tailscaleIP: 100.125.132.32
         camera:
           username: admin
           passwordRef: ref+bw://ced7f8be-3b32-4ccd-b846-b3a700a524b0/password
+  msuv2-was-pod02:
+    values:
+      - name: was-pod02
+        tailscaleIP: 100.97.60.33
+        camera:
+          username: admin
+          passwordRef: ref+bw://e72e8aa0-3a79-4cae-8c80-b41000a24ac2/password
 
 ---
 
@@ -29,7 +37,7 @@ releases:
             log_level: INFO
             position_source:
               type: command
-              command: ["gpspipe", "-r", "100.125.132.32:2947"]
+              command: ["gpspipe", "-r", "{{ .Values.tailscaleIP }}:2947"]
 
         videoSource:
           settingsYamls:
