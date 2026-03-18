@@ -1,0 +1,158 @@
+repositories:
+  - name: starwitorg
+    url: registry-1.docker.io/starwitorg
+    oci: true
+
+environments: 
+  default:
+    values:
+      - DO_NOT_USE_THIS: 0
+  msuv2-dzs-pod01:
+    values:
+      - name: NAME
+        position:
+          latitude: 52.41342104011871
+          longitude: 10.781614015489067
+        camera:
+          username: admin
+          passwordRef: ref+bw://f2bc5679-7fe7-4609-bbc9-b3f600b695f0/password
+  msuv2-dzs-pod02:
+    values:
+      - name: NAME
+        position:
+          latitude: 52.41342104011871
+          longitude: 10.781614015489067
+        camera:
+          username: admin
+          passwordRef: ref+bw://b2956f44-58a5-4594-9b95-b3f600b6adc7/password
+  msuv2-dzs-pod03:
+    values:
+      - name: NAME
+        position:
+          latitude: 52.41342104011871
+          longitude: 10.781614015489067
+        camera:
+          username: admin
+          passwordRef: ref+bw://2609c85e-410c-4f02-8f60-b3f600b6e2bf/password
+  msuv2-dzs-pod04:
+    values:
+      - name: NAME
+        position:
+          latitude: 52.41342104011871
+          longitude: 10.781614015489067
+        camera:
+          username: admin
+          passwordRef: ref+bw://c89613f4-26a9-4356-9e86-b3f600b6f65f/password
+  msuv2-dzs-pod05:
+    values:
+      - name: NAME
+        position:
+          latitude: 52.41342104011871
+          longitude: 10.781614015489067
+        camera:
+          username: admin
+          passwordRef: ref+bw://1c43823c-6bab-4e96-bf3e-b3f600b70445/password
+
+---
+
+releases:
+  - name: sae
+    chart: starwitorg/sae
+    version: 8.1.3
+    namespace: sae
+    createNamespace: true
+    values:
+      - positionSource:
+          enabled: true
+          settingsYaml:
+            log_level: INFO
+            position_source:
+              type: static
+              lat: {{ .Values.position.latitude }}
+              lon: {{ .Values.position.longitude }}
+
+        videoSource:
+          settingsYamls:
+          - id: {{ .Values.name }}
+            uri: 'rtsp://{{ .Values.camera.username | urlquery }}:{{ .Values.camera.passwordRef | fetchSecretValue | urlquery }}@192.168.1.64/'
+            max_fps: 10
+            scale_width: 1280
+            jpeg_quality: 90
+            log_level: INFO
+            camera_position_source:
+              stream_id: "positionsource:self"
+              drop_frames_if_no_position: True
+
+        objectDetector:
+          customWeights: 
+            enabled: true
+            imageTag: yolov8m-openvino-static-736x1280
+          settingsYaml:
+            log_level: INFO
+            model:
+              weights_path: custom_weights/yolov8m_openvino_model
+              device: intel:gpu
+              nms_agnostic: true
+              inference_size: [ 736, 1280 ]
+              classes: [ 2, 5, 7 ]
+            drop_edge_detections: true
+            redis:
+              stream_ids:
+                - {{ .Values.name }}
+
+        objectTracker:
+          needsGpu: False
+          streamIds:
+            - {{ .Values.name }}
+          settingsYaml:
+            log_level: INFO
+            tracker_algorithm: OCSORT
+            tracker_config:
+              det_thresh: 0.2
+              max_age: 30
+              min_hits: 3
+              asso_threshold: 0.3
+              delta_t: 3
+              asso_func: 'iou'
+              inertia: 0.2
+              use_byte: False
+              Q_xy_scaling: 1
+              Q_s_scaling: 1
+
+        geoMapper:
+          enabled: true
+          settingsYaml:
+            log_level: INFO
+            cameras:
+              - stream_id: {{ .Values.name }}
+                mode: map
+                view_x_deg: 90
+                image_width_px: 1920
+                image_height_px: 1080
+                elevation_m: 10
+                tilt_deg: 45
+                heading_deg: 90
+                brown_distortion_k1: 0
+                brown_distortion_k2: 0
+                brown_distortion_k3: 0
+                remove_unmapped_detections: false
+
+        redisWriter:
+          enabled: true
+          instances:
+            - name: prod
+              settingsYaml:
+                log_level: DEBUG
+                #remove_frame_data: null            # If frame data should be removed (default true; only applies to SAE messages; beware of privacy and bandwidth consequences!)
+                target_redis:
+                  host: 100.72.130.57
+                  port: 30379
+                  buffer_length: 10
+                  target_stream_maxlen: 100
+                  tls: false
+                mapping_config:
+                  - source: geomapper:{{ .Values.name }}
+                    target: geomapper:{{ .Values.name }}
+
+        databaseWriter:
+          enabled: false
