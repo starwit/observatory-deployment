@@ -329,13 +329,15 @@ releases:
     installed: {{ .Values.observatory.installed}}
     namespace: {{ .Values.namespace }}
     chart: starwitorg/observatory-chart
-    version: 2.1.0
+    version: 2.1.1
     values:
       - app:
           port: 8081
-        sae:
-          redisHost: valkey-primary
-          redisPort: 6379
+        spring:
+          data:
+            redis:
+              host: valkey-primary
+              port: 6379
         databases:
           observatory: 
             internal: false
