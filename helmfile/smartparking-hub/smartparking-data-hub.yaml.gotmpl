@@ -65,7 +65,6 @@ environments:
           password: none
         observatory:
           installed: true
-          redisStreamPrefix: "geomapper"
         observatoryconfig:
           installed: true
         visualizer:
@@ -94,7 +93,6 @@ environments:
           password: {{ requiredEnv "ODP_PASSWORD" }}
         observatory:
           installed: true
-          redisStreamPrefix: "meckauer"
         observatoryconfig:
           installed: true
         visualizer:
@@ -123,7 +121,6 @@ environments:
           password: {{ requiredEnv "ODP_PASSWORD" }}
         observatory:
           installed: true
-          redisStreamPrefix: "geomapper"
         observatoryconfig:
           installed: true
         visualizer:
@@ -152,7 +149,6 @@ environments:
           password: {{ requiredEnv "ODP_PASSWORD" }}
         observatory:
           installed: true
-          redisStreamPrefix: "geomapper"
         observatoryconfig:
           installed: true
         visualizer:
@@ -297,11 +293,9 @@ releases:
     installed: {{ .Values.observatoryconfig.installed}}
     namespace: {{ .Values.namespace }}
     chart: starwitorg/observatory-config-chart
-    version: 0.9.6
+    version: 0.9.7
     values:
-      - image:
-          tag: 0.9.6
-        app:
+      - app:
           observatoryUrl: http://observatory.{{ .Values.namespace }}.svc.cluster.local/observatory
         auth:
           enabled: {{ .Values.auth.enabled}}
@@ -335,12 +329,11 @@ releases:
     installed: {{ .Values.observatory.installed}}
     namespace: {{ .Values.namespace }}
     chart: starwitorg/observatory-chart
-    version: 1.5.0
+    version: 2.1.0
     values:
       - app:
           port: 8081
         sae:
-          redisStreamPrefix: {{ .Values.observatory.redisStreamPrefix }}
           redisHost: valkey-primary
           redisPort: 6379
         databases:
