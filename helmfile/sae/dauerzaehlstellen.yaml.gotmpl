@@ -16,6 +16,19 @@ environments:
         camera:
           username: admin
           passwordRef: ref+bw://f2bc5679-7fe7-4609-bbc9-b3f600b695f0/password
+        geoMapping:
+          mode: map
+          view_x_deg: 77
+          image_width_px: 2560
+          image_height_px: 1440
+          elevation_m: 5.620064756359105
+          tilt_deg: 70.30704932354391
+          roll_deg: 0.0
+          heading_deg: 192.596649400059
+          brown_distortion_k1: -0.14537511747730536
+          brown_distortion_k2: -0.07971979873526826
+          brown_distortion_k3: 0
+          remove_unmapped_detections: false
   msuv2-dzs-pod02:
     values:
       - name: dzs-d01-braunschweigerstr
@@ -34,6 +47,19 @@ environments:
         camera:
           username: admin
           passwordRef: ref+bw://2609c85e-410c-4f02-8f60-b3f600b6e2bf/password
+        geoMapping:
+          mode: map
+          view_x_deg: 81
+          image_width_px: 2560
+          image_height_px: 1440
+          elevation_m: 5.362758940715495
+          tilt_deg: 71.74262623373947
+          roll_deg: 0.8194648350404091
+          heading_deg: 133.91348836441824
+          brown_distortion_k1: -0.016884535669191996
+          brown_distortion_k2: -0.18034718078455308
+          brown_distortion_k3: 0.0
+          remove_unmapped_detections: false
   msuv2-dzs-pod04:
     values:
       - name: dzs-d26-heinrichnordhoffstr
@@ -52,6 +78,19 @@ environments:
         camera:
           username: admin
           passwordRef: ref+bw://1c43823c-6bab-4e96-bf3e-b3f600b70445/password
+        geoMapping:
+          mode: map
+          view_x_deg: 78
+          image_width_px: 2560
+          image_height_px: 1440
+          elevation_m: 6.145087649504857
+          tilt_deg: 78.13966167572582
+          roll_deg: 0.0
+          heading_deg: 245.2130200348826
+          brown_distortion_k1: -0.003614399074718813
+          brown_distortion_k2: -0.032369639956848814
+          brown_distortion_k3: 0
+          remove_unmapped_detections: false
 
 ---
 
@@ -125,17 +164,18 @@ releases:
             log_level: INFO
             cameras:
               - stream_id: {{ .Values.name }}
-                mode: map
-                view_x_deg: 77
-                image_width_px: 2560
-                image_height_px: 1440
-                elevation_m: 5.620064756359105
-                tilt_deg: 70.30704932354391
-                heading_deg: 192.596649400059
-                brown_distortion_k1: -0.14537511747730536
-                brown_distortion_k2: -0.07971979873526826
-                brown_distortion_k3: 0
-                remove_unmapped_detections: false
+                mode: {{ .Values.geoMapping.mode }}
+                view_x_deg: {{ .Values.geoMapping.view_x_deg }}
+                image_width_px: {{ .Values.geoMapping.image_width_px }}
+                image_height_px: {{ .Values.geoMapping.image_height_px }}
+                elevation_m: {{ .Values.geoMapping.elevation_m }}
+                tilt_deg: {{ .Values.geoMapping.tilt_deg }}
+                roll_deg: {{ .Values.geoMapping.roll_deg }}
+                heading_deg: {{ .Values.geoMapping.heading_deg }}
+                brown_distortion_k1: {{ .Values.geoMapping.brown_distortion_k1 }}
+                brown_distortion_k2: {{ .Values.geoMapping.brown_distortion_k2 }}
+                brown_distortion_k3: {{ .Values.geoMapping.brown_distortion_k3 }}
+                remove_unmapped_detections: {{ .Values.geoMapping.remove_unmapped_detections }}
 
         redisWriter:
           enabled: true
