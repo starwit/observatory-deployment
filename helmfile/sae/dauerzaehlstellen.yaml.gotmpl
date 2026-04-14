@@ -29,6 +29,42 @@ environments:
           brown_distortion_k2: -0.07971979873526826
           brown_distortion_k3: 0
           remove_unmapped_detections: false
+          mapping_area: {
+            "coordinates": [
+              [
+                [
+                  10.797610168264981,
+                  52.42579091622514
+                ],
+                [
+                  10.796577290345482,
+                  52.425721787715275
+                ],
+                [
+                  10.795928592628314,
+                  52.424727093267535
+                ],
+                [
+                  10.796608780526242,
+                  52.42448129658666
+                ],
+                [
+                  10.798850881374705,
+                  52.42440064425202
+                ],
+                [
+                  10.798491893317504,
+                  52.4257371496158
+                ],
+                [
+                  10.797610168264981,
+                  52.42579091622514
+                ]
+              ]
+            ],
+            "type": "Polygon"
+          }
+            
   msuv2-dzs-pod02:
     values:
       - name: dzs-d01-braunschweigerstr
@@ -60,6 +96,49 @@ environments:
           brown_distortion_k2: -0.18034718078455308
           brown_distortion_k3: 0.0
           remove_unmapped_detections: false
+          mapping_area: {
+            "coordinates": [
+              [
+                [
+                  10.792214878691965,
+                  52.4244749034778
+                ],
+                [
+                  10.792145600294788,
+                  52.424148452594835
+                ],
+                [
+                  10.79241011781096,
+                  52.423326553785415
+                ],
+                [
+                  10.792888768554263,
+                  52.42331887241565
+                ],
+                [
+                  10.792964344987098,
+                  52.423941059013515
+                ],
+                [
+                  10.79318477624986,
+                  52.42405243716905
+                ],
+                [
+                  10.794312124710359,
+                  52.42412924952666
+                ],
+                [
+                  10.79427433649397,
+                  52.42444801937876
+                ],
+                [
+                  10.792214878691965,
+                  52.4244749034778
+                ]
+              ]
+            ],
+            "type": "Polygon"
+          }
   msuv2-dzs-pod04:
     values:
       - name: dzs-d26-heinrichnordhoffstr
@@ -91,6 +170,37 @@ environments:
           brown_distortion_k2: -0.032369639956848814
           brown_distortion_k3: 0
           remove_unmapped_detections: false
+          mapping_area: {
+            "coordinates": [
+              [
+                [
+                  10.80186207715252,
+                  52.42714841323482
+                ],
+                [
+                  10.799230654581663,
+                  52.42759975742766
+                ],
+                [
+                  10.798937222143024,
+                  52.42703086600372
+                ],
+                [
+                  10.799123374389183,
+                  52.42657492807484
+                ],
+                [
+                  10.801865839106597,
+                  52.426687331753925
+                ],
+                [
+                  10.80186207715252,
+                  52.42714841323482
+                ]
+              ]
+            ],
+            "type": "Polygon"
+          }
 
 ---
 
@@ -176,6 +286,7 @@ releases:
                 brown_distortion_k2: {{ .Values.geoMapping.brown_distortion_k2 }}
                 brown_distortion_k3: {{ .Values.geoMapping.brown_distortion_k3 }}
                 remove_unmapped_detections: {{ .Values.geoMapping.remove_unmapped_detections }}
+                mapping_area: {{ .Values.geoMapping.mapping_area | toJson }}
 
         redisWriter:
           enabled: true
