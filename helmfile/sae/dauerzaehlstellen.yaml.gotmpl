@@ -16,6 +16,55 @@ environments:
         camera:
           username: admin
           passwordRef: ref+bw://f2bc5679-7fe7-4609-bbc9-b3f600b695f0/password
+        geoMapping:
+          mode: map
+          view_x_deg: 77
+          image_width_px: 2560
+          image_height_px: 1440
+          elevation_m: 5.620064756359105
+          tilt_deg: 70.30704932354391
+          roll_deg: 0.0
+          heading_deg: 192.596649400059
+          brown_distortion_k1: -0.14537511747730536
+          brown_distortion_k2: -0.07971979873526826
+          brown_distortion_k3: 0
+          remove_unmapped_detections: false
+          mapping_area: {
+            "coordinates": [
+              [
+                [
+                  10.797610168264981,
+                  52.42579091622514
+                ],
+                [
+                  10.796577290345482,
+                  52.425721787715275
+                ],
+                [
+                  10.795928592628314,
+                  52.424727093267535
+                ],
+                [
+                  10.796608780526242,
+                  52.42448129658666
+                ],
+                [
+                  10.798850881374705,
+                  52.42440064425202
+                ],
+                [
+                  10.798491893317504,
+                  52.4257371496158
+                ],
+                [
+                  10.797610168264981,
+                  52.42579091622514
+                ]
+              ]
+            ],
+            "type": "Polygon"
+          }
+            
   msuv2-dzs-pod02:
     values:
       - name: dzs-d01-braunschweigerstr
@@ -34,6 +83,62 @@ environments:
         camera:
           username: admin
           passwordRef: ref+bw://2609c85e-410c-4f02-8f60-b3f600b6e2bf/password
+        geoMapping:
+          mode: map
+          view_x_deg: 81
+          image_width_px: 2560
+          image_height_px: 1440
+          elevation_m: 5.362758940715495
+          tilt_deg: 71.74262623373947
+          roll_deg: 0.8194648350404091
+          heading_deg: 133.91348836441824
+          brown_distortion_k1: -0.016884535669191996
+          brown_distortion_k2: -0.18034718078455308
+          brown_distortion_k3: 0.0
+          remove_unmapped_detections: false
+          mapping_area: {
+            "coordinates": [
+              [
+                [
+                  10.792214878691965,
+                  52.4244749034778
+                ],
+                [
+                  10.792145600294788,
+                  52.424148452594835
+                ],
+                [
+                  10.79241011781096,
+                  52.423326553785415
+                ],
+                [
+                  10.792888768554263,
+                  52.42331887241565
+                ],
+                [
+                  10.792964344987098,
+                  52.423941059013515
+                ],
+                [
+                  10.79318477624986,
+                  52.42405243716905
+                ],
+                [
+                  10.794312124710359,
+                  52.42412924952666
+                ],
+                [
+                  10.79427433649397,
+                  52.42444801937876
+                ],
+                [
+                  10.792214878691965,
+                  52.4244749034778
+                ]
+              ]
+            ],
+            "type": "Polygon"
+          }
   msuv2-dzs-pod04:
     values:
       - name: dzs-d26-heinrichnordhoffstr
@@ -52,6 +157,50 @@ environments:
         camera:
           username: admin
           passwordRef: ref+bw://1c43823c-6bab-4e96-bf3e-b3f600b70445/password
+        geoMapping:
+          mode: map
+          view_x_deg: 78
+          image_width_px: 2560
+          image_height_px: 1440
+          elevation_m: 6.145087649504857
+          tilt_deg: 78.13966167572582
+          roll_deg: 0.0
+          heading_deg: 245.2130200348826
+          brown_distortion_k1: -0.003614399074718813
+          brown_distortion_k2: -0.032369639956848814
+          brown_distortion_k3: 0
+          remove_unmapped_detections: false
+          mapping_area: {
+            "coordinates": [
+              [
+                [
+                  10.80186207715252,
+                  52.42714841323482
+                ],
+                [
+                  10.799230654581663,
+                  52.42759975742766
+                ],
+                [
+                  10.798937222143024,
+                  52.42703086600372
+                ],
+                [
+                  10.799123374389183,
+                  52.42657492807484
+                ],
+                [
+                  10.801865839106597,
+                  52.426687331753925
+                ],
+                [
+                  10.80186207715252,
+                  52.42714841323482
+                ]
+              ]
+            ],
+            "type": "Polygon"
+          }
 
 ---
 
@@ -125,17 +274,19 @@ releases:
             log_level: INFO
             cameras:
               - stream_id: {{ .Values.name }}
-                mode: map
-                view_x_deg: 90
-                image_width_px: 1920
-                image_height_px: 1080
-                elevation_m: 10
-                tilt_deg: 45
-                heading_deg: 90
-                brown_distortion_k1: 0
-                brown_distortion_k2: 0
-                brown_distortion_k3: 0
-                remove_unmapped_detections: false
+                mode: {{ .Values.geoMapping.mode }}
+                view_x_deg: {{ .Values.geoMapping.view_x_deg }}
+                image_width_px: {{ .Values.geoMapping.image_width_px }}
+                image_height_px: {{ .Values.geoMapping.image_height_px }}
+                elevation_m: {{ .Values.geoMapping.elevation_m }}
+                tilt_deg: {{ .Values.geoMapping.tilt_deg }}
+                roll_deg: {{ .Values.geoMapping.roll_deg }}
+                heading_deg: {{ .Values.geoMapping.heading_deg }}
+                brown_distortion_k1: {{ .Values.geoMapping.brown_distortion_k1 }}
+                brown_distortion_k2: {{ .Values.geoMapping.brown_distortion_k2 }}
+                brown_distortion_k3: {{ .Values.geoMapping.brown_distortion_k3 }}
+                remove_unmapped_detections: {{ .Values.geoMapping.remove_unmapped_detections }}
+                mapping_area: {{ .Values.geoMapping.mapping_area | toJson }}
 
         redisWriter:
           enabled: true
