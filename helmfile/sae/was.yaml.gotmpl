@@ -27,19 +27,21 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 8.1.3
+    version: 10.0.0
     namespace: sae
     createNamespace: true
     values:
       - positionSource:
           enabled: true
-          image:
-            tag: 1.2.0-3
           settingsYaml:
             log_level: INFO
             position_source:
               type: command
               command: ["gpspipe", "-r", "{{ .Values.tailscaleIP }}:2947"]
+            gps_filter:
+              enabled: true
+              alpha: 0.7
+              beta: 0.04
 
         videoSource:
           settingsYamls:
