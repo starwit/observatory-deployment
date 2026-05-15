@@ -181,19 +181,6 @@ releases:
         redisWriter:
           enabled: true
           instances:
-          - name: staging
-            settingsYaml:
-              target_redis:
-                buffer_length: 1000
-                host: 100.112.168.104
-                port: 30379
-                target_stream_maxlen: 1000
-                tls: false
-              mapping_config:
-                - source: geomapper:meckauer-north
-                - source: geomapper:meckauer-south
-                - source: geomapper:meckauer-east
-                - source: geomapper:meckauer-west
           - name: prod
             settingsYaml:
               target_redis:
