@@ -33,6 +33,8 @@ releases:
     values:
       - positionSource:
           enabled: true
+          image:
+            tag: 3.0.0
           settingsYaml:
             log_level: INFO
             position_source:
@@ -136,11 +138,11 @@ releases:
         redisWriter:
           enabled: true
           instances:
-            - name: staging
+            - name: prod
               settingsYaml:
                 log_level: DEBUG
                 target_redis:
-                  host: 100.112.168.104
+                  host: 100.72.130.57
                   port: 30379
                   buffer_length: 10
                   target_stream_maxlen: 100
@@ -152,12 +154,12 @@ releases:
                     target: aggregator:{{ .Values.name }}
                   - source: positionsource:self
                     target: positionsource:{{ .Values.name }}
-            - name: staging-ai-control
+            - name: prod-ai-control
               settingsYaml:
                 log_level: DEBUG
                 remove_frame_data: false
                 target_redis:
-                  host: 100.112.168.104
+                  host: 100.72.130.57
                   port: 30379
                   buffer_length: 10
                   target_stream_maxlen: 100
