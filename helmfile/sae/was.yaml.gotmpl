@@ -27,14 +27,12 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 10.0.0
+    version: 11.0.0
     namespace: sae
     createNamespace: true
     values:
       - positionSource:
           enabled: true
-          image:
-            tag: 3.0.0
           settingsYaml:
             log_level: INFO
             position_source:
