@@ -105,6 +105,7 @@ releases:
           settingsYaml:
             redis:
               input_stream_prefix: objectdetector
+              stream_id: {{ .Values.name }}
             min_confidence: 0.2
             min_width: 0.001
             min_height: 0.001
