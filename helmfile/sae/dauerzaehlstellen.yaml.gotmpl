@@ -69,25 +69,51 @@ environments:
     values:
       - name: dzs-d01-braunschweigerstr
         position:
-          latitude: 52.415136
-          longitude: 10.783389
+          latitude: 52.4151338
+          longitude: 10.7833848
         camera:
           username: admin
           passwordRef: ref+bw://b2956f44-58a5-4594-9b95-b3f600b6adc7/password
         geoMapping:
           mode: map
-          view_x_deg: 1
+          view_x_deg: 71.0
           image_width_px: 2560
           image_height_px: 1440
-          elevation_m: 0
-          tilt_deg: 0
-          roll_deg: 0
-          heading_deg: 0
-          brown_distortion_k1: 0
-          brown_distortion_k2: 0
+          elevation_m: 5.820845361261305
+          tilt_deg: 72.63601359255603
+          roll_deg: 0.38609163183925566
+          heading_deg: 186.88441064301927
+          brown_distortion_k1: -0.4999077382352737
+          brown_distortion_k2: 0.14612893126195434
           brown_distortion_k3: 0
           remove_unmapped_detections: false
-          mapping_area: null
+          mapping_area: {
+            "coordinates": [
+              [
+                [
+                  10.783012453367746,
+                  52.41526298507776
+                ],
+                [
+                  10.782602773992977,
+                  52.41394183123478
+                ],
+                [
+                  10.783478919982969,
+                  52.41386760793483
+                ],
+                [
+                  10.783835868349115,
+                  52.415208556300655
+                ],
+                [
+                  10.783012453367746,
+                  52.41526298507776
+                ]
+              ]
+            ],
+            "type": "Polygon"
+          }
   msuv2-dzs-pod03:
     values:
       - name: dzs-d37-rothenfelderstr
