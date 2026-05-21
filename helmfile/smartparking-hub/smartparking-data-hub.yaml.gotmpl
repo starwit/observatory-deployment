@@ -247,7 +247,7 @@ releases:
     installed: true
     namespace: {{ .Values.namespace }}
     chart: grafana/grafana
-    version: 7.3.7  
+    version: 10.5.15  
     values:
       - ingress:
           enabled: true
@@ -288,9 +288,9 @@ releases:
             scopes: openid profile email
             client_id: {{ requiredEnv "KEYCLOAK_CLIENT" }}
             client_secret: {{ .Values.auth.client_secret }}
-            auth_url: '{{ .Values.auth.keycloak_host }}/realms/{{ requiredEnv "KEYCLOAK_REALM" }}/protocol/openid-connect/auth'
-            token_url: 'http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values | get "hostname" "localhost" }}/realms/{{ requiredEnv "KEYCLOAK_REALM" }}/protocol/openid-connect/token'
-            api_url: 'http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values | get "hostname" "localhost" }}/realms/{{ requiredEnv "KEYCLOAK_REALM" }}/protocol/openid-connect/userinfo'
+            auth_url: '{{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}/protocol/openid-connect/auth'
+            token_url: '{{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}/protocol/openid-connect/token'
+            api_url: '{{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}/protocol/openid-connect/userinfo'
             role_attribute_path: contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'dev') && 'Editor' || 'Viewer'
             allow_assign_grafana_admin: true
 
