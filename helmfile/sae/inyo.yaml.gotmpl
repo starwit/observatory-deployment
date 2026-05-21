@@ -1,0 +1,110 @@
+repositories:
+  - name: starwitorg
+    url: registry-1.docker.io/starwitorg
+    oci: true
+
+environments:
+  default:
+    values:
+      - DO_NOT_USE_THIS: 0
+  friedrich:
+    values:
+      - name: friedrich
+        position:
+          latitude: 48.03501421073437
+          longitude: 11.941357341618085
+        camera:
+          username: admin
+          passwordRef: ref+bw://15f9078b-a662-48cd-b2bd-b45100d89e82/password
+---
+
+releases:
+  - name: sae
+    chart: starwitorg/sae
+    version: 11.0.0
+    namespace: sae
+    createNamespace: true
+    values:
+      - positionSource:
+          enabled: true
+          settingsYaml:
+            log_level: INFO
+            position_source:
+              lat: {{ .Values.position.latitude }}
+              lon: {{ .Values.position.longitude }}
+
+        videoSource:
+          settingsYamls:
+          - id: {{ .Values.name }}
+            uri: 'rtsp://{{ .Values.camera.username | urlquery }}:{{ .Values.camera.passwordRef | fetchSecretValue | urlquery }}@192.168.1.64/'
+            max_fps: 10
+            scale_width: 1280
+            jpeg_quality: 90
+            log_level: INFO
+            camera_position_source:
+              stream_id: "positionsource:self"
+              drop_frames_if_no_position: True
+
+        objectDetector:
+          customWeights: 
+            enabled: true
+            imageTag: yolov8m-openvino-static-736x1280
+          settingsYaml:
+            log_level: INFO
+            model:
+              weights_path: custom_weights/yolov8m_openvino_model
+              device: intel:gpu
+              nms_agnostic: true
+              inference_size: [ 736, 1280 ]
+              classes: [ 0, 1, 2, 5, 7 ]
+            drop_edge_detections: true
+            redis:
+              stream_ids:
+                - {{ .Values.name }}
+
+        objectTracker:
+          needsGpu: False
+          streamIds:
+            - {{ .Values.name }}
+          settingsYaml:
+            log_level: INFO
+            tracker_algorithm: OCSORT
+            tracker_config:
+              det_thresh: 0.2
+              max_age: 30
+              min_hits: 3
+              asso_threshold: 0.3
+              delta_t: 3
+              asso_func: 'iou'
+              inertia: 0.2
+              use_byte: False
+              Q_xy_scaling: 1
+              Q_s_scaling: 1
+
+        geoMapper:
+          enabled: true
+          settingsYaml:
+            log_level: INFO
+            redis:
+              input_stream_prefix: objectdetector
+            cameras:
+              - stream_id: {{ .Values.name }}
+                mode: copy
+
+        redisWriter:
+          enabled: true
+          instances:
+            - name: prod
+              settingsYaml:
+                log_level: DEBUG
+                target_redis:
+                  host: 100.111.189.38
+                  port: 30379
+                  buffer_length: 10
+                  target_stream_maxlen: 100
+                  tls: false
+                mapping_config:
+                  - source: geomapper:{{ .Values.name }}
+                    target: geomapper:{{ .Values.name }}
+                  - source: positionsource:self
+                    target: positionsource:{{ .Values.name }}
