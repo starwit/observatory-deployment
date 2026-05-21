@@ -137,6 +137,9 @@ environments:
         tls: true
         auth:
           enabled: true
+          keycloak_host: https://auth-ng.data-wolfsburg.de
+          keycloak_realm: {{ requiredEnv "KEYCLOAK_REALM" }}
+          keycloak_client: {{ requiredEnv "KEYCLOAK_CLIENT" }}
           client_secret: {{ requiredEnv "CLIENT_SECRET" }}
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: {{ requiredEnv "KEYKLOAK_CLIENT_ADMIN_SECRET" }}
