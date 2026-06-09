@@ -27,7 +27,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 11.0.1
+    version: 11.0.2
     namespace: sae
     createNamespace: true
     values:
@@ -143,7 +143,7 @@ releases:
                 target_redis:
                   host: 100.72.130.57
                   port: 30379
-                  buffer_length: 1000
+                  buffer_length: 2000
                   target_stream_maxlen: 100
                   tls: false
                 mapping_config:
