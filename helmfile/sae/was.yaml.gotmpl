@@ -147,8 +147,6 @@ releases:
                   target_stream_maxlen: 2000
                   tls: false
                 mapping_config:
-                  - source: geomapper:{{ .Values.name }}
-                    target: geomapper:{{ .Values.name }}
                   - source: aggregator:{{ .Values.name }}
                     target: aggregator:{{ .Values.name }}
                   - source: positionsource:self
