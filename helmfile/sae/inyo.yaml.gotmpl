@@ -10,9 +10,7 @@ environments:
   friedrich:
     values:
       - name: friedrich
-        position:
-          latitude: 48.03501421073437
-          longitude: 11.941357341618085
+        tailscaleIP: 100.69.158.63
         camera:
           username: admin
           passwordRef: ref+bw://15f9078b-a662-48cd-b2bd-b45100d89e82/password
@@ -21,7 +19,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 11.0.0
+    version: 11.0.2
     namespace: sae
     createNamespace: true
     values:
@@ -30,8 +28,12 @@ releases:
           settingsYaml:
             log_level: INFO
             position_source:
-              lat: {{ .Values.position.latitude }}
-              lon: {{ .Values.position.longitude }}
+              type: command
+              command: ["gpspipe", "-r", "{{ .Values.tailscaleIP }}:2947"]
+            gps_filter:
+              enabled: true
+              alpha: 0.7
+              beta: 0.04
 
         videoSource:
           settingsYamls:
