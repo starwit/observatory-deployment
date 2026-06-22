@@ -106,6 +106,9 @@ environments:
         tls: true
         auth:
           enabled: true
+          keycloak_host: https://auth-ng.staging.data-wolfsburg.de
+          keycloak_realm: {{ requiredEnv "KEYCLOAK_REALM" }}
+          keycloak_client: {{ requiredEnv "KEYCLOAK_CLIENT" }}
           client_secret: {{ requiredEnv "CLIENT_SECRET" }}
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: {{ requiredEnv "KEYKLOAK_CLIENT_ADMIN_SECRET" }}
@@ -134,6 +137,9 @@ environments:
         tls: true
         auth:
           enabled: true
+          keycloak_host: https://auth-ng.data-wolfsburg.de
+          keycloak_realm: {{ requiredEnv "KEYCLOAK_REALM" }}
+          keycloak_client: {{ requiredEnv "KEYCLOAK_CLIENT" }}
           client_secret: {{ requiredEnv "CLIENT_SECRET" }}
           keycloak_admin: {{ requiredEnv "KEYCLOAK_ADMIN" }}
           realm_admin_pw: {{ requiredEnv "KEYKLOAK_CLIENT_ADMIN_SECRET" }}
@@ -152,9 +158,9 @@ environments:
         observatoryconfig:
           installed: true
         visualizer:
-          installed: false
-        keycloak:
           installed: true
+        keycloak:
+          installed: false
 ---
 releases:
   - name: config-data
@@ -244,7 +250,7 @@ releases:
     installed: true
     namespace: {{ .Values.namespace }}
     chart: grafana/grafana
-    version: 7.3.7  
+    version: 10.5.15  
     values:
       - ingress:
           enabled: true
@@ -273,6 +279,8 @@ releases:
                 secureJsonData:
                   password: '{{ .Values.dbpasswords.analytics }}'
         assertNoLeakedSecrets: false
+        initChownData:
+          enabled: false
         grafana.ini:
           server:
             root_url: http{{- if .Values.tls }}s{{- end }}://dashboard.{{ .Values | get "hostname" "localhost" }}/
@@ -281,11 +289,11 @@ releases:
             name: Keycloak
             allow_sign_up: true
             scopes: openid profile email
-            client_id: observatory-config
+            client_id: {{ requiredEnv "KEYCLOAK_CLIENT" }}
             client_secret: {{ .Values.auth.client_secret }}
-            auth_url: 'http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values | get "hostname" "localhost" }}/realms/observatory-config/protocol/openid-connect/auth'
-            token_url: 'http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values | get "hostname" "localhost" }}/realms/observatory-config/protocol/openid-connect/token'
-            api_url: 'http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values | get "hostname" "localhost" }}/realms/observatory-config/protocol/openid-connect/userinfo'
+            auth_url: '{{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}/protocol/openid-connect/auth'
+            token_url: '{{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}/protocol/openid-connect/token'
+            api_url: '{{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}/protocol/openid-connect/userinfo'
             role_attribute_path: contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'dev') && 'Editor' || 'Viewer'
             allow_assign_grafana_admin: true
 
@@ -299,9 +307,9 @@ releases:
           observatoryUrl: http://observatory.{{ .Values.namespace }}.svc.cluster.local/observatory
         auth:
           enabled: {{ .Values.auth.enabled}}
-          keycloakRealmUrlInternal: http://keycloak.{{ .Values.namespace }}.svc.cluster.local/realms/observatory-config
-          keycloakRealmUrlExternal: http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values.hostname }}/realms/observatory-config
-          clientId: observatory-config
+          keycloakRealmUrlInternal: {{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}
+          keycloakRealmUrlExternal: {{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}
+          clientId: {{ requiredEnv "KEYCLOAK_CLIENT" }}
           clientSecret: {{ .Values.auth.client_secret }}
         database:
           internal: false
@@ -413,9 +421,9 @@ releases:
     values:
       - auth:
           enabled: {{ .Values.auth.enabled}}
-          keycloakRealmUrlInternal: http://keycloak.{{ .Values.namespace }}.svc.cluster.local/realms/observatory-config
-          keycloakRealmUrlExternal: http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values.hostname }}/realms/observatory-config
-          clientId: observatory-config
+          keycloakRealmUrlInternal: {{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}
+          keycloakRealmUrlExternal: {{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}
+          clientId: {{ requiredEnv "KEYCLOAK_CLIENT" }}
           clientSecret: {{ .Values.auth.client_secret }}
         config:
           valkey:
