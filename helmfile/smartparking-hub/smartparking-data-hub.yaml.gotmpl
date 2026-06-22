@@ -337,7 +337,7 @@ releases:
     installed: {{ .Values.observatory.installed}}
     namespace: {{ .Values.namespace }}
     chart: starwitorg/observatory-chart
-    version: 2.1.1
+    version: 2.2.0
     values:
       - app:
           port: 8081
@@ -361,6 +361,11 @@ releases:
             username: analytics
             password: {{ .Values.dbpasswords.analytics }}
             isTimescale: true
+        areaOccupancy:
+          flowIdleDecreaseEnabled: true
+          flowIdleDecreaseThreshold: 1h
+          flowIdleDecreaseInterval: 15m
+          flowIdleDecreaseFactor: 1
         extraEnv: |
           - name: JAVA_TOOL_OPTIONS
             value: "-Xmx1024m"
