@@ -40,7 +40,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 8.1.1
+    version: 11.1.0
     namespace: sae
     createNamespace: true
     values:
@@ -69,6 +69,9 @@ releases:
           customWeights: 
             enabled: true
             imageTag: yolov8m-openvino-static-736x1280
+          restart:
+            enabled: true
+            schedule: "0 0 * * *"  
           settingsYaml:
             log_level: INFO
             model:
@@ -83,7 +86,6 @@ releases:
                 - {{ .Values.name }}
 
         objectTracker:
-          needsGpu: False
           streamIds:
             - {{ .Values.name }}
           settingsYaml:
