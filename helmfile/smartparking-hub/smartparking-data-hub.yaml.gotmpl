@@ -38,8 +38,6 @@ environments:
           installed: true
         observatory-config:
           installed: true
-        visualizer:
-          installed: true
 
   demonstration:
     values:
@@ -65,8 +63,6 @@ environments:
           installed: true
         observatoryconfig:
           installed: true
-        visualizer:
-          installed: true
   wob-dev:
     values:  
       - namespace: observatory-data
@@ -90,8 +86,6 @@ environments:
         observatory:
           installed: true
         observatoryconfig:
-          installed: true
-        visualizer:
           installed: true
   wob-staging:
     values:
@@ -120,8 +114,6 @@ environments:
           installed: true
         observatoryconfig:
           installed: true
-        visualizer:
-          installed: false
   wob-prod:
     values:
       - namespace: observatory-data
@@ -149,8 +141,6 @@ environments:
           installed: true
         observatoryconfig:
           installed: true
-        visualizer:
-          installed: false
 ---
 releases:
   - name: config-data
@@ -382,27 +372,3 @@ releases:
           driver: org.postgresql.Driver
           username: analytics
           password: {{ .Values.dbpasswords.analytics }} 
-
-  - name: visualizer
-    installed: {{ .Values.visualizer.installed}}
-    namespace: {{ .Values.namespace }}
-    chart: starwitorg/sae-visualizer-chart
-    version: 1.2.0
-    values:
-      - auth:
-          enabled: {{ .Values.auth.enabled}}
-          keycloakRealmUrlInternal: {{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}
-          keycloakRealmUrlExternal: {{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}
-          clientId: {{ requiredEnv "KEYCLOAK_CLIENT" }}
-          clientSecret: {{ .Values.auth.client_secret }}
-        config:
-          valkey:
-            host: valkey-primary
-            port: 6379
-        ingress:
-          enabled: true
-          hosts:
-          - host: visualizer.{{ .Values.hostname }}
-            paths:
-            - path: /
-              pathType: ImplementationSpecific
