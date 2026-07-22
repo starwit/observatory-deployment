@@ -40,8 +40,6 @@ environments:
           installed: true
         visualizer:
           installed: true
-        keycloak:
-          installed: true
 
   demonstration:
     values:
@@ -69,8 +67,6 @@ environments:
           installed: true
         visualizer:
           installed: true
-        keycloak:
-          installed: false
   wob-dev:
     values:  
       - namespace: observatory-data
@@ -96,8 +92,6 @@ environments:
         observatoryconfig:
           installed: true
         visualizer:
-          installed: true
-        keycloak:
           installed: true
   wob-staging:
     values:
@@ -128,8 +122,6 @@ environments:
           installed: true
         visualizer:
           installed: true
-        keycloak:
-          installed: true
   wob-prod:
     values:
       - namespace: observatory-data
@@ -159,8 +151,6 @@ environments:
           installed: true
         visualizer:
           installed: true
-        keycloak:
-          installed: false
 ---
 releases:
   - name: config-data
@@ -169,43 +159,6 @@ releases:
     installed: true
     values:
       - config-data/values.gotmpl
-
-  - name: keycloak
-    installed: {{ .Values.keycloak.installed}}
-    namespace: {{ .Values.namespace }}
-    chart: bitnamicharts/keycloak
-    version: 24.0.2
-    values:
-      - image:
-          repository: bitnamilegacy/keycloak
-        httpRelativePath: / # set context path for keycloak console
-        auth:
-          adminUser: admin
-          adminPassword: {{ .Values.auth.keycloak_admin }}
-        proxy: edge
-        extraEnvVars:
-          - name: KC_HOSTNAME_URL
-            value: http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values.hostname }}
-          - name: KC_HOSTNAME_ADMIN_URL
-            value: http{{- if .Values.tls }}s{{- end }}://auth.{{ .Values | get "hostname" "localhost" }}
-        ingress:
-          enabled: true
-          hostname: auth.{{ .Values.hostname }}
-          tls: true
-          selfSigned: {{ eq .Environment.Name "default" }}
-          annotations:
-            cert-manager.io/cluster-issuer: letsencrypt-prod
-        postgresql:
-          nameOverride: "keycloak-postgresql"
-          image:
-            repository: bitnamilegacy/postgresql
-          auth:
-            password: bn_keycloak
-        keycloakConfigCli:
-          enabled: true
-          image:
-            repository: bitnamilegacy/keycloak-config-cli
-          existingConfigmap: observatory
 
   - name: timescaledb
     installed: true
