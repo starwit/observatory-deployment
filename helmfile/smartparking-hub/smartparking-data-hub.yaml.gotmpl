@@ -121,7 +121,7 @@ environments:
         observatoryconfig:
           installed: true
         visualizer:
-          installed: true
+          installed: false
   wob-prod:
     values:
       - namespace: observatory-data
@@ -150,7 +150,7 @@ environments:
         observatoryconfig:
           installed: true
         visualizer:
-          installed: true
+          installed: false
 ---
 releases:
   - name: config-data
@@ -327,7 +327,7 @@ releases:
     installed: {{ .Values.odp.installed}}
     namespace: {{ .Values.namespace }}
     chart: starwitorg/odp-adapter-chart
-    version: 0.0.11
+    version: 0.0.12
     values:
       - odp:
           url: {{ .Values.odp.url }}
@@ -351,7 +351,7 @@ releases:
     installed: {{ .Values.odp.installed}}
     namespace: {{ .Values.namespace }}
     chart: starwitorg/odp-adapter-chart
-    version: 0.0.11
+    version: 0.0.12
     values:
       - odp:
           url: {{ .Values.odp.url }}
