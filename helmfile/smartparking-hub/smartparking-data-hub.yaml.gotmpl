@@ -254,7 +254,7 @@ releases:
     installed: {{ .Values.observatoryconfig.installed}}
     namespace: {{ .Values.namespace }}
     chart: starwitorg/observatory-config-chart
-    version: 0.9.7
+    version: 1.0.1
     values:
       - app:
           observatoryUrl: http://observatory.{{ .Values.namespace }}.svc.cluster.local/observatory
@@ -271,9 +271,21 @@ releases:
           name: observatoryconfig
           username: observatoryconfig
           password: {{ .Values.dbpasswords.observatoryconfig }}
+          partitionManagement:
+            retentionTime: 2d
+            partitionRangeDuration: 6h
+            partitionInitTimeUTC: "00:00"
+            maintenanceInterval: 1h
+        redis:
+          enabled: true
+          host: valkey-primary
+          port: 6379
+          frameStreamPrefix: saeapi-frame
         extraEnv: |
           - name: OIDC-CLIENT-REGISTRATION_CLIENT-AUTHENTICATION-METHOD  
             value: client_secret_post
+          - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI
+            value: {{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}
         ingress:
           enabled: true
           hosts:
