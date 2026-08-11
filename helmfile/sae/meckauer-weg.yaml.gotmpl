@@ -154,7 +154,7 @@ releases:
             imageTag: tsp-2024-11-26-trrt-10.13.2.6
           settingsYaml:
             log_level: DEBUG
-            drop_edge_detections: true
+            drop_edge_detections: false
             model:
               device: cuda
               nms_agnostic: true
@@ -215,38 +215,34 @@ releases:
         videoSource:
           settingsYamls:
           - id: meckauer-south
-            log_level: DEBUG
             jpeg_quality: 95
             max_fps: 10
             scale_width: 1280
-            uri: 'rtsp://{{ .Values.cameras.south.username | urlquery }}:{{ .Values.cameras.south.passwordRef | fetchSecretValue | urlquery }}@192.168.1.11:8554/rtsp'
-            camera_position_source:
-              stream_id: "positionsource:self"
-              drop_frames_if_no_position: True
-          - id: meckauer-east
-            log_level: DEBUG
-            jpeg_quality: 95
-            max_fps: 10
-            scale_width: 1280
-            uri: 'rtsp://{{ .Values.cameras.east.username | urlquery }}:{{ .Values.cameras.east.passwordRef | fetchSecretValue | urlquery }}@192.168.1.12:8554/rtsp'
+            uri: 'rtsp://{{ .Values.cameras.south.username | urlquery }}:{{ .Values.cameras.south.passwordRef | fetchSecretValue | urlquery }}@192.168.1.11/Streaming/Channels/1'
             camera_position_source:
               stream_id: "positionsource:self"
               drop_frames_if_no_position: True
           - id: meckauer-west
-            log_level: DEBUG
             jpeg_quality: 95
             max_fps: 10
             scale_width: 1280
-            uri: 'rtsp://{{ .Values.cameras.west.username | urlquery }}:{{ .Values.cameras.west.passwordRef | fetchSecretValue | urlquery }}@192.168.1.13:8554/rtsp'
+            uri: 'rtsp://{{ .Values.cameras.west.username | urlquery }}:{{ .Values.cameras.west.passwordRef | fetchSecretValue | urlquery }}@192.168.1.12/Streaming/Channels/1'
             camera_position_source:
               stream_id: "positionsource:self"
               drop_frames_if_no_position: True
           - id: meckauer-north
-            log_level: DEBUG
             jpeg_quality: 95
             max_fps: 10
             scale_width: 1280
-            uri: 'rtsp://{{ .Values.cameras.north.username | urlquery }}:{{ .Values.cameras.north.passwordRef | fetchSecretValue | urlquery }}@192.168.1.14:8554/rtsp'
+            uri: 'rtsp://{{ .Values.cameras.north.username | urlquery }}:{{ .Values.cameras.north.passwordRef | fetchSecretValue | urlquery }}@192.168.1.13/Streaming/Channels/1'
+            camera_position_source:
+              stream_id: "positionsource:self"
+              drop_frames_if_no_position: True
+          - id: meckauer-east
+            jpeg_quality: 95
+            max_fps: 10
+            scale_width: 1280
+            uri: 'rtsp://{{ .Values.cameras.east.username | urlquery }}:{{ .Values.cameras.east.passwordRef | fetchSecretValue | urlquery }}@192.168.1.14/Streaming/Channels/1'
             camera_position_source:
               stream_id: "positionsource:self"
               drop_frames_if_no_position: True
