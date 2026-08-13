@@ -1,0 +1,301 @@
+repositories:
+  - name: grafana
+    url: https://grafana.github.io/helm-charts
+  - name: valkey
+    url: https://valkey.io/valkey-helm/
+  - name: starwitorg
+    url: registry-1.docker.io/starwitorg
+    oci: true
+
+helmDefaults:
+  wait: true
+
+environments:
+  staging:
+    values:
+      - namespace: observatory-data
+        hostname: {{ requiredEnv "HOSTNAME" }}
+        tls: true
+        auth:
+          enabled: true
+          keycloak_host: {{ requiredEnv "KEYCLOAK_HOSTNAME" }}
+          keycloak_realm: {{ requiredEnv "KEYCLOAK_REALM" }}
+          keycloak_client: {{ requiredEnv "KEYCLOAK_CLIENT" }}
+          client_secret: {{ requiredEnv "CLIENT_SECRET" }}
+        dbpasswords: 
+          saebackend: {{ requiredEnv "DB_SAEBACKEND_SECRET" }}
+          observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
+          observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
+          analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
+        observatory:
+          installed: true
+        observatoryconfig:
+          installed: true
+  prod:
+    values:
+      - namespace: observatory-data
+        hostname: {{ requiredEnv "HOSTNAME" }}
+        tls: true
+
+        components:
+          observatory: true
+          observatoryconfig: true
+          timescaledb: true
+          valkey: true
+          grafana: true    
+        component_versions:
+          observatory: 2.2.0
+          observatoryconfig: 1.1.0
+          timescaledb: 1.2.4
+          grafana: 10.5.15
+
+        auth:
+          enabled: true
+          keycloak_host: {{ requiredEnv "KEYCLOAK_HOSTNAME" }}
+          keycloak_realm: {{ requiredEnv "KEYCLOAK_REALM" }}
+          keycloak_client: {{ requiredEnv "KEYCLOAK_CLIENT" }}
+          client_secret: {{ requiredEnv "CLIENT_SECRET" }}
+        dbpasswords: 
+          saebackend: {{ requiredEnv "DB_SAEBACKEND_SECRET" }}
+          observatoryconfig: {{ requiredEnv "DB_OBSERVATORY_CONFIG_SECRET" }} 
+          observatory: {{ requiredEnv "DB_OBSERVATORY_SECRET" }} 
+          analytics: {{ requiredEnv "DB_ANALYTICS_SECRET" }}
+---
+releases:
+  - name: config-data
+    namespace: {{ .Values.namespace }}
+    chart: ./config-data
+    installed: true
+    values:
+      - config-data/values.gotmpl
+
+  - name: timescaledb
+    installed: {{ .Values.components.timescaledb }}
+    namespace: {{ .Values.namespace }}
+    chart: starwitorg/timescaledb-chart
+    version: {{ .Values.component_versions.timescaledb }}
+    values:
+      - postgresql:
+          password: {{ .Values.dbpasswords.analytics }}
+        init:
+          enabled: true
+          init_user_db: |
+            -- Create schemata, users and extenions
+            CREATE EXTENSION IF NOT EXISTS timescaledb;
+
+            CREATE USER analytics WITH PASSWORD '{{ .Values.dbpasswords.analytics }}';
+            SELECT 'CREATE DATABASE analytics owner analytics' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'analytics')\gexec
+            \connect analytics
+
+            CREATE USER observatory WITH PASSWORD '{{ .Values.dbpasswords.observatory }}';
+            SELECT 'CREATE DATABASE observatory owner observatory' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'observatory')\gexec
+            \connect analytics
+
+            CREATE USER observatoryconfig WITH PASSWORD '{{ .Values.dbpasswords.observatoryconfig }}';
+            SELECT 'CREATE DATABASE observatoryconfig owner observatoryconfig' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'observatoryconfig')\gexec
+            \connect observatoryconfig
+
+            CREATE USER saebackend WITH PASSWORD '{{ .Values.dbpasswords.saebackend }}';
+            SELECT 'CREATE DATABASE saebackend owner saebackend' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'saebackend')\gexec
+            \connect saebackend
+
+            CREATE TABLE IF NOT EXISTS public.detection
+            (
+                "detection_id" integer,
+                "capture_ts" timestamp with time zone NOT NULL,
+                "camera_id" character varying COLLATE pg_catalog."default",
+                "object_id" character varying COLLATE pg_catalog."default",
+                "class_id" integer,
+                "confidence" double precision,
+                "min_x" real,
+                "min_y" real,
+                "max_x" real,
+                "max_y" real,
+                "latitude" double precision,
+                "longitude" double precision
+            );
+            SELECT create_hypertable('detection', 'capture_ts', if_not_exists => TRUE);
+
+            CREATE INDEX IF NOT EXISTS detection_camera_id
+                ON public.detection USING btree
+                ("camera_id" COLLATE pg_catalog."default" ASC NULLS LAST)
+                TABLESPACE pg_default;
+                
+            CREATE INDEX IF NOT EXISTS detection_object_id
+                ON public.detection USING btree
+                ("object_id" COLLATE pg_catalog."default" ASC NULLS LAST)
+                TABLESPACE pg_default;
+
+            SELECT add_retention_policy('detection', INTERVAL '30 days', if_not_exists => TRUE);
+            
+            SELECT set_chunk_time_interval('detection', INTERVAL '24 hours');
+
+            CREATE EXTENSION IF NOT EXISTS postgis;
+
+          init_tables: |  
+            -- empty
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+
+  - name: valkey
+    installed: {{ .Values.components.valkey }}
+    namespace: {{ .Values.namespace }}
+    chart: valkey/valkey
+    values:
+      - replica: # Standalone is the default because replica.enabled defaults to false
+          enabled: false
+        # Persist Valkey data
+        dataStorage:
+          enabled: false
+        # Keep the default internal Kubernetes service
+        service:
+          type: NodePort
+          nodePort: 30379
+
+  - name: grafana
+    installed: {{ .Values.components.grafana }}
+    namespace: {{ .Values.namespace }}
+    chart: grafana/grafana
+    version: {{ .Values.component_versions.grafana }}
+    values:
+      - ingress:
+          enabled: true
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt-prod
+          hosts:
+            - dashboard.{{ .Values | get "hostname" "localhost" }}
+          path: /
+          tls:
+          - hosts:
+            - dashboard.{{ .Values | get "hostname" "localhost" }}
+            secretName: dashboard.{{ .Values | get "hostname" "localhost" }}
+
+        persistence:
+          enabled: true
+        datasources:
+          datasources.yaml:
+            apiVersion: 1
+            datasources:
+              - name: Analytics-DB
+                type: postgres
+                editable: true
+                url: timescaledb-chart-timescaledb.{{ .Values.namespace }}.svc.cluster.local:5432
+                user: analytics
+                database: analytics
+                secureJsonData:
+                  password: '{{ .Values.dbpasswords.analytics }}'
+        assertNoLeakedSecrets: false
+        initChownData:
+          enabled: false
+        grafana.ini:
+          server:
+            root_url: http{{- if .Values.tls }}s{{- end }}://dashboard.{{ .Values | get "hostname" "localhost" }}/
+          auth.generic_oauth:
+            enabled: true
+            name: Keycloak
+            allow_sign_up: true
+            scopes: openid profile email
+            client_id: {{ requiredEnv "KEYCLOAK_CLIENT" }}
+            client_secret: {{ .Values.auth.client_secret }}
+            auth_url: '{{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}/protocol/openid-connect/auth'
+            token_url: '{{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}/protocol/openid-connect/token'
+            api_url: '{{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}/protocol/openid-connect/userinfo'
+            role_attribute_path: contains(roles[*], 'admin') && 'Admin' || contains(roles[*], 'dev') && 'Editor' || 'Viewer'
+            allow_assign_grafana_admin: true
+
+  - name: observatory-config
+    installed: {{ .Values.components.observatoryconfig }}
+    namespace: {{ .Values.namespace }}
+    chart: starwitorg/observatory-config-chart
+    version: {{ .Values.component_versions.observatoryconfig }}
+    values:
+      - app:
+          observatoryUrl: http://observatory.{{ .Values.namespace }}.svc.cluster.local/observatory
+        auth:
+          enabled: {{ .Values.auth.enabled}}
+          keycloakRealmUrlInternal: {{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}
+          keycloakRealmUrlExternal: {{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}
+          clientId: {{ requiredEnv "KEYCLOAK_CLIENT" }}
+          clientSecret: {{ .Values.auth.client_secret }}
+        database:
+          internal: false
+          host: timescaledb-chart-timescaledb.{{ .Values.namespace }}.svc.cluster.local
+          port: 5432          
+          name: observatoryconfig
+          username: observatoryconfig
+          password: {{ .Values.dbpasswords.observatoryconfig }}
+          partitionManagement:
+            retentionTime: 2d
+            partitionRangeDuration: 6h
+            partitionInitTimeUTC: "00:00"
+            maintenanceInterval: 1h
+        redis:
+          enabled: true
+          host: valkey
+          port: 6379
+          frameStreamPrefix: saeapi-frame
+        resources:
+          requests:
+            memory: 1Gi
+          limits:
+            memory: 2Gi
+        extraEnv: |
+          - name: OIDC-CLIENT-REGISTRATION_CLIENT-AUTHENTICATION-METHOD  
+            value: client_secret_post
+          - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI
+            value: {{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}
+          - name: JAVA_TOOL_OPTIONS
+            value: "-Xmx2048m"
+        ingress:
+          enabled: true
+          hosts:
+            - host: observatory.{{ .Values.hostname }}
+              paths:
+                - path: /
+                  pathType: ImplementationSpecific
+          tls:
+            - hosts:
+              - observatory.{{ .Values.hostname }}
+              secretName: spc.{{ .Values.hostname }}
+
+  - name: observatory
+    installed: {{ .Values.components.observatory }}
+    namespace: {{ .Values.namespace }}
+    chart: starwitorg/observatory-chart
+    version: {{ .Values.component_versions.observatory }}
+    values:
+      - app:
+          port: 8081
+        spring:
+          data:
+            redis:
+              host: valkey
+              port: 6379
+        databases:
+          observatory: 
+            internal: false
+            host: timescaledb-chart-timescaledb.{{ .Values.namespace }}.svc.cluster.local
+            port: 5432          
+            database: observatory
+            username: observatory
+            password: {{ .Values.dbpasswords.observatory }}
+          analytics:
+            host: timescaledb-chart-timescaledb.{{ .Values.namespace }}.svc.cluster.local
+            port: 5432
+            database: analytics
+            username: analytics
+            password: {{ .Values.dbpasswords.analytics }}
+            isTimescale: true
+        areaOccupancy:
+          flowIdleDecreaseEnabled: true
+          flowIdleDecreaseThreshold: 1h
+          flowIdleDecreaseInterval: 15m
+          flowIdleDecreaseFactor: 1
+        extraEnv: |
+          - name: JAVA_TOOL_OPTIONS
+            value: "-Xmx1024m"

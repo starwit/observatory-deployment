@@ -1,0 +1,12 @@
+# Default values for config-data.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+hostname: {{ .Values.hostname }}
+tls: {{ .Values.tls }}
+
+passwords:
+  saebackend: {{ .Values.dbpasswords.saebackend }}
+  observatoryconfig: {{ .Values.dbpasswords.observatoryconfig }}
+  observatory: {{ .Values.dbpasswords.observatory }}
+  analytics: {{ .Values.dbpasswords.analytics }}

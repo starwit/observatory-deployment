@@ -271,11 +271,18 @@ releases:
           host: valkey-primary
           port: 6379
           frameStreamPrefix: saeapi-frame
+        resources:
+          requests:
+            memory: 1Gi
+          limits:
+            memory: 2Gi
         extraEnv: |
           - name: OIDC-CLIENT-REGISTRATION_CLIENT-AUTHENTICATION-METHOD  
             value: client_secret_post
           - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI
             value: {{ .Values.auth.keycloak_host }}/auth/realms/{{ requiredEnv "KEYCLOAK_REALM" }}
+          - name: JAVA_TOOL_OPTIONS
+            value: "-Xmx2048m"
         ingress:
           enabled: true
           hosts:
