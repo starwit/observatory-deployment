@@ -163,38 +163,34 @@ releases:
         videoSource:
           settingsYamls:
           - id: hafenstrasse-northwest
-            log_level: DEBUG
             jpeg_quality: 95
             max_fps: 8
             scale_width: 1280
-            uri: 'rtsp://{{ .Values.cameras.northwest.username | urlquery }}:{{ .Values.cameras.northwest.passwordRef | fetchSecretValue | urlquery }}@192.168.1.11:8554/Streaming/channels/1'
+            uri: 'rtsp://{{ .Values.cameras.northwest.username | urlquery }}:{{ .Values.cameras.northwest.passwordRef | fetchSecretValue | urlquery }}@192.168.1.11/Streaming/channels/1'
             camera_position_source:
               stream_id: "positionsource:self"
               drop_frames_if_no_position: True
           - id: hafenstrasse-southwest
-            log_level: DEBUG
             jpeg_quality: 95
             max_fps: 8
             scale_width: 1280
-            uri: 'rtsp://{{ .Values.cameras.southwest.username | urlquery }}:{{ .Values.cameras.southwest.passwordRef | fetchSecretValue | urlquery }}@192.168.1.12:8554/Streaming/channels/1'
+            uri: 'rtsp://{{ .Values.cameras.southwest.username | urlquery }}:{{ .Values.cameras.southwest.passwordRef | fetchSecretValue | urlquery }}@192.168.1.14/Streaming/channels/1'
             camera_position_source:
               stream_id: "positionsource:self"
               drop_frames_if_no_position: True
           - id: hafenstrasse-southeast
-            log_level: DEBUG
             jpeg_quality: 95
             max_fps: 8
             scale_width: 1280
-            uri: 'rtsp://{{ .Values.cameras.southeast.username | urlquery }}:{{ .Values.cameras.southeast.passwordRef | fetchSecretValue | urlquery }}@192.168.1.13:8554/Streaming/channels/1'
+            uri: 'rtsp://{{ .Values.cameras.southeast.username | urlquery }}:{{ .Values.cameras.southeast.passwordRef | fetchSecretValue | urlquery }}@192.168.1.13/Streaming/channels/1'
             camera_position_source:
               stream_id: "positionsource:self"
               drop_frames_if_no_position: True
           - id: hafenstrasse-northeast
-            log_level: DEBUG
             jpeg_quality: 95
             max_fps: 8
             scale_width: 1280
-            uri: 'rtsp://{{ .Values.cameras.northeast.username | urlquery }}:{{ .Values.cameras.northeast.passwordRef | fetchSecretValue | urlquery }}@192.168.1.14:8554/Streaming/channels/1'
+            uri: 'rtsp://{{ .Values.cameras.northeast.username | urlquery }}:{{ .Values.cameras.northeast.passwordRef | fetchSecretValue | urlquery }}@192.168.1.12/Streaming/channels/1'
             camera_position_source:
               stream_id: "positionsource:self"
               drop_frames_if_no_position: True
