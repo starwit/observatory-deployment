@@ -7,36 +7,38 @@ environments:
   default:
     values:
       - cameras:
-          south:
+          northwest:
             username: admin
-            passwordRef: ref+bw://0458a142-3ca6-447f-ac5e-b4a2010c9ef3/password
-          east:
+            passwordRef: ref+bw://fd05c0ee-c36f-466e-889d-b4a200f4816c/password
+          southwest:
             username: admin
-            passwordRef: ref+bw://97303bb2-fad8-424e-aeb2-b4a2010cb315/password
-          west:
+            passwordRef: ref+bw://4a95e20b-7dac-4981-a989-b4a200f4362d/password
+          southeast:
             username: admin
-            passwordRef: ref+bw://e3fa70c6-7e1b-4cc8-b2fa-b4a2010ccea2/password
-          north:
+            passwordRef: ref+bw://747241ed-b4ca-4c32-a8b1-b4a200f44e82/password
+          northeast:
             username: admin
-            passwordRef: ref+bw://aa3c5545-d6b9-4193-bf86-b4a2010ce8a7/password
+            passwordRef: ref+bw://6e6a0b09-c978-4990-9aa3-b4a200f41c68/password
 
 ---
 
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 8.0.0
+    version: 11.3.0
     namespace: sae
     createNamespace: true
     values:
-      - positionSource:
+      - intelGpuDriver: xe
+
+        positionSource:
           enabled: true
           settingsYaml:
             log_level: INFO
             position_source:
               type: static
-              lat: 52.42416804301217
-              lon: 10.786926227454526
+              lat: 52.42404694410418
+              lon: 10.71719800380943
         
         geoMapper:
           settingsYaml:
@@ -49,22 +51,9 @@ releases:
               heading_deg: 83.28665708786522
               image_height_px: 720
               image_width_px: 1280
-              mapping_area:
-                coordinates:
-                - - - 10.787096772764224
-                    - 52.424080277899
-                  - - 10.78726764906682
-                    - 52.42434491610731
-                  - - 10.78701009810604
-                    - 52.424368216470306
-                  - - 10.78693130909344
-                    - 52.42411497641799
-                  - - 10.787096772764224
-                    - 52.424080277899
-                type: Polygon
               remove_unmapped_detections: false
               roll_deg: 1.451322047263786
-              stream_id: meckauer-east
+              stream_id: hafenstrasse-southeast
               tilt_deg: 34.89977815983701
               view_x_deg: 98
             - brown_distortion_k1: -0.2836159635730888
@@ -75,22 +64,9 @@ releases:
               image_height_px: 720
               image_width_px: 1280
               mode: map
-              mapping_area:
-                coordinates:
-                - - - 10.786752194120185
-                    - 52.42431456186525
-                  - - 10.78726080979424
-                    - 52.424274595156994
-                  - - 10.787303477591593
-                    - 52.42455332200221
-                  - - 10.786802804455235
-                    - 52.42460109016702
-                  - - 10.786752194120185
-                    - 52.42431456186525
-                type: Polygon
               remove_unmapped_detections: false
               roll_deg: -2.8153535849970908
-              stream_id: meckauer-north
+              stream_id: hafenstrasse-northwest
               tilt_deg: 60.23730868825839
               view_x_deg: 78
             - brown_distortion_k1: -0.3642591635887667
@@ -101,22 +77,9 @@ releases:
               image_height_px: 720
               image_width_px: 1280
               mode: map
-              mapping_area:
-                coordinates:
-                - - - 10.786720334358773
-                    - 52.424186906949004
-                  - - 10.787136839386493
-                    - 52.424141671986334
-                  - - 10.786856101118072
-                    - 52.423684495761506
-                  - - 10.786603426592702
-                    - 52.42376990903258
-                  - - 10.786720334358773
-                    - 52.424186906949004
-                type: Polygon
               remove_unmapped_detections: false
               roll_deg: -2.349038854591525
-              stream_id: meckauer-south
+              stream_id: hafenstrasse-southwest
               tilt_deg: 42.880596818964804
               view_x_deg: 97.5
             - brown_distortion_k1: -0.18669333449908376
@@ -127,22 +90,9 @@ releases:
               image_height_px: 720
               image_width_px: 1280
               mode: map
-              mapping_area:
-                coordinates:
-                - - - 10.786768622047525
-                    - 52.42437513478074
-                  - - 10.787004365640092
-                    - 52.42436121125783
-                  - - 10.786939975609606
-                    - 52.424133935311794
-                  - - 10.786721564672098
-                    - 52.42413337422841
-                  - - 10.786768622047525
-                    - 52.42437513478074
-                type: Polygon
               remove_unmapped_detections: false
               roll_deg: -10.142669800887898
-              stream_id: meckauer-west
+              stream_id: hafenstrasse-northeast
               tilt_deg: 34.560425395037896
               view_x_deg: 104.5
             object_center_elevation_m: 1
@@ -151,27 +101,25 @@ releases:
         objectDetector:
           customWeights:
             enabled: true
-            imageTag: tsp-2024-11-26-trrt-10.13.2.6
+            imageTag: yolov8m-openvino-static-736x1280
+          restart:
+            enabled: true
+            schedule: "0 0 * * *" 
           settingsYaml:
             log_level: DEBUG
             drop_edge_detections: false
             model:
-              device: cuda
+              device: intel:gpu
               nms_agnostic: true
-              weights_path: custom_weights/weights.engine
-              inference_size:
-              - 1280
-              - 736
-              classes:
-              - 2
-              - 5
-              - 7
+              weights_path: custom_weights/yolov8m_openvino_model
+              inference_size: [ 736, 1280 ]
+              classes: [ 2, 5, 7 ]
             redis:
               stream_ids:
-              - meckauer-north
-              - meckauer-south
-              - meckauer-east
-              - meckauer-west
+              - hafenstrasse-northwest
+              - hafenstrasse-southwest
+              - hafenstrasse-southeast
+              - hafenstrasse-northeast
 
         objectTracker:
           settingsYaml:
@@ -190,10 +138,10 @@ releases:
               use_byte: false
           needsGpu: false
           streamIds:
-          - meckauer-north
-          - meckauer-south
-          - meckauer-east
-          - meckauer-west
+          - hafenstrasse-northwest
+          - hafenstrasse-southwest
+          - hafenstrasse-southeast
+          - hafenstrasse-northeast
 
         redisWriter:
           enabled: true
@@ -207,42 +155,42 @@ releases:
                 target_stream_maxlen: 1000
                 tls: false
               mapping_config:
-                - source: geomapper:meckauer-north
-                - source: geomapper:meckauer-south
-                - source: geomapper:meckauer-east
-                - source: geomapper:meckauer-west
+                - source: geomapper:hafenstrasse-northwest
+                - source: geomapper:hafenstrasse-southwest
+                - source: geomapper:hafenstrasse-southeast
+                - source: geomapper:hafenstrasse-northeast
 
         videoSource:
           settingsYamls:
-          - id: meckauer-south
+          - id: hafenstrasse-northwest
             jpeg_quality: 95
-            max_fps: 10
+            max_fps: 8
             scale_width: 1280
-            uri: 'rtsp://{{ .Values.cameras.south.username | urlquery }}:{{ .Values.cameras.south.passwordRef | fetchSecretValue | urlquery }}@192.168.1.11/Streaming/Channels/1'
+            uri: 'rtsp://{{ .Values.cameras.northwest.username | urlquery }}:{{ .Values.cameras.northwest.passwordRef | fetchSecretValue | urlquery }}@192.168.1.11/Streaming/channels/1'
             camera_position_source:
               stream_id: "positionsource:self"
               drop_frames_if_no_position: True
-          - id: meckauer-west
+          - id: hafenstrasse-southwest
             jpeg_quality: 95
-            max_fps: 10
+            max_fps: 8
             scale_width: 1280
-            uri: 'rtsp://{{ .Values.cameras.west.username | urlquery }}:{{ .Values.cameras.west.passwordRef | fetchSecretValue | urlquery }}@192.168.1.12/Streaming/Channels/1'
+            uri: 'rtsp://{{ .Values.cameras.southwest.username | urlquery }}:{{ .Values.cameras.southwest.passwordRef | fetchSecretValue | urlquery }}@192.168.1.14/Streaming/channels/1'
             camera_position_source:
               stream_id: "positionsource:self"
               drop_frames_if_no_position: True
-          - id: meckauer-north
+          - id: hafenstrasse-southeast
             jpeg_quality: 95
-            max_fps: 10
+            max_fps: 8
             scale_width: 1280
-            uri: 'rtsp://{{ .Values.cameras.north.username | urlquery }}:{{ .Values.cameras.north.passwordRef | fetchSecretValue | urlquery }}@192.168.1.13/Streaming/Channels/1'
+            uri: 'rtsp://{{ .Values.cameras.southeast.username | urlquery }}:{{ .Values.cameras.southeast.passwordRef | fetchSecretValue | urlquery }}@192.168.1.13/Streaming/channels/1'
             camera_position_source:
               stream_id: "positionsource:self"
               drop_frames_if_no_position: True
-          - id: meckauer-east
+          - id: hafenstrasse-northeast
             jpeg_quality: 95
-            max_fps: 10
+            max_fps: 8
             scale_width: 1280
-            uri: 'rtsp://{{ .Values.cameras.east.username | urlquery }}:{{ .Values.cameras.east.passwordRef | fetchSecretValue | urlquery }}@192.168.1.14/Streaming/Channels/1'
+            uri: 'rtsp://{{ .Values.cameras.northeast.username | urlquery }}:{{ .Values.cameras.northeast.passwordRef | fetchSecretValue | urlquery }}@192.168.1.12/Streaming/channels/1'
             camera_position_source:
               stream_id: "positionsource:self"
               drop_frames_if_no_position: True
