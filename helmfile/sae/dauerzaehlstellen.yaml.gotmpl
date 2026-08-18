@@ -261,7 +261,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 11.1.0
+    version: 11.5.0
     namespace: sae
     createNamespace: true
     values:
@@ -360,6 +360,21 @@ releases:
                 mapping_config:
                   - source: geomapper:{{ .Values.name }}
                     target: geomapper:{{ .Values.name }}
+
+        aiControl:
+          enabled: true
+          settingsYaml:
+            log_level: INFO
+            min_confidence: 0.4
+            min_width: 0.001
+            min_height: 0.001
+            max_detections: 20
+            time_past: 1d
+            cooldown_seconds: 60
+            redis:
+              stream_id: {{ .Values.name }}
+              input_stream_prefix: objectdetector
+              output_stream_prefix: detectionselector
 
         databaseWriter:
           enabled: false
