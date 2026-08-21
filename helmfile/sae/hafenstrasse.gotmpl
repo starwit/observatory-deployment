@@ -25,7 +25,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 11.3.0
+    version: 12.0.0
     namespace: sae
     createNamespace: true
     values:
@@ -194,3 +194,87 @@ releases:
             camera_position_source:
               stream_id: "positionsource:self"
               drop_frames_if_no_position: True
+
+        detectionSampler:
+          enabled: true
+          instances:
+            - name: training-data-nw
+              settingsYaml:
+                log_level: DEBUG
+                filters:
+                  - name: non_car_vehicles
+                    match_detection:
+                      class_id_in: [5,7]
+                      width_above: 0.075
+                    cooldown: 1m
+
+                  - name: low_confidence_cars
+                    match_detection:
+                      class_id_in: [2]
+                      confidence_below: 0.6
+                      width_above: 0.05
+                    cooldown: 1m
+                redis:
+                  stream_id: hafenstrasse-northwest
+                  input_stream_prefix: objectdetector
+                  output_stream_prefix: detectionselector
+            - name: training-data-ne
+              settingsYaml:
+                log_level: DEBUG
+                filters:
+                  - name: non_car_vehicles
+                    match_detection:
+                      class_id_in: [5,7]
+                      width_above: 0.075
+                    cooldown: 10m
+
+                  - name: low_confidence_cars
+                    match_detection:
+                      class_id_in: [2]
+                      confidence_below: 0.6
+                      width_above: 0.05
+                    cooldown: 10m
+                redis:
+                  stream_id: hafenstrasse-northeast
+                  input_stream_prefix: objectdetector
+                  output_stream_prefix: detectionselector
+            - name: training-data-se
+              settingsYaml:
+                log_level: DEBUG
+                filters:
+                  - name: non_car_vehicles
+                    match_detection:
+                      class_id_in: [5,7]
+                      width_above: 0.075
+                    cooldown: 10m
+
+                  - name: low_confidence_cars
+                    match_detection:
+                      class_id_in: [2]
+                      confidence_below: 0.6
+                      width_above: 0.05
+                    cooldown: 10m
+                redis:
+                  stream_id: hafenstrasse-southeast
+                  input_stream_prefix: objectdetector
+                  output_stream_prefix: detectionselector
+            - name: training-data-sw
+              settingsYaml:
+                log_level: DEBUG
+                filters:
+                  - name: non_car_vehicles
+                    match_detection:
+                      class_id_in: [5,7]
+                      width_above: 0.075
+                    cooldown: 10m
+
+                  - name: low_confidence_cars
+                    match_detection:
+                      class_id_in: [2]
+                      confidence_below: 0.6
+                      width_above: 0.05
+                    cooldown: 10m
+                redis:
+                  stream_id: hafenstrasse-southwest
+                  input_stream_prefix: objectdetector
+                  output_stream_prefix: detectionselector
