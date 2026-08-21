@@ -261,7 +261,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 11.5.0
+    version: 12.0.0
     namespace: sae
     createNamespace: true
     values:
@@ -361,36 +361,35 @@ releases:
                   - source: geomapper:{{ .Values.name }}
                     target: geomapper:{{ .Values.name }}
 
-        aiControl:
+        detectionSampler:
           enabled: true
-          image:
-            repository: starwitorg/sae-detection-sampler
-            tag: 0.2.0-4
-          settingsYaml:
-            log_level: DEBUG
-            filters:
-              - name: non_car_vehicles
-                match_detection:
-                  class_id_in: [5,7]
-                  width_above: 0.075
-                cooldown: 1m
+          instances:
+            - name: training-data
+              settingsYaml:
+                log_level: DEBUG
+                filters:
+                  - name: non_car_vehicles
+                    match_detection:
+                      class_id_in: [5,7]
+                      width_above: 0.075
+                    cooldown: 1m
 
-              - name: low_confidence_cars
-                match_detection:
-                  class_id_in: [2]
-                  confidence_below: 0.6
-                  width_above: 0.05
-                cooldown: 1m
-              
-              - name: motorcycles
-                match_detection:
-                  class_id_in: [3]
-                cooldown: 1m
+                  - name: low_confidence_cars
+                    match_detection:
+                      class_id_in: [2]
+                      confidence_below: 0.6
+                      width_above: 0.05
+                    cooldown: 1m
+                  
+                  - name: motorcycles
+                    match_detection:
+                      class_id_in: [3]
+                    cooldown: 1m
 
-            redis:
-              stream_id: {{ .Values.name }}
-              input_stream_prefix: objectdetector
-              output_stream_prefix: detectionselector
+                redis:
+                  stream_id: {{ .Values.name }}
+                  input_stream_prefix: objectdetector
+                  output_stream_prefix: detectionselector
 
         databaseWriter:
           enabled: false
