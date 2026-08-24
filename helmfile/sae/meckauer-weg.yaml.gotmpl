@@ -245,3 +245,87 @@ releases:
             camera_position_source:
               stream_id: "positionsource:self"
               drop_frames_if_no_position: True
+
+        detectionSampler:
+          enabled: true
+          instances:
+            - name: training-data-north
+              settingsYaml:
+                log_level: DEBUG
+                filters:
+                  - name: many_vehicles
+                    match_detection:
+                      class_id_in: [2,5,7]
+                    matching_count_above: 25
+                    cooldown: 30m
+
+                  - name: few_not_zero_vehicles
+                    match_detection:
+                      class_id_in: [2,5,7]
+                    matching_count_above: 3
+                    matching_count_below: 15
+                    cooldown: 60m
+                redis:
+                  stream_id: meckauer-north
+                  input_stream_prefix: objectdetector
+                  output_stream_prefix: detectionselector
+            - name: training-data-south
+              settingsYaml:
+                log_level: DEBUG
+                filters:
+                  - name: many_vehicles
+                    match_detection:
+                      class_id_in: [2,5,7]
+                    matching_count_above: 15
+                    cooldown: 30m
+
+                  - name: few_not_zero_vehicles
+                    match_detection:
+                      class_id_in: [2,5,7]
+                    matching_count_above: 3
+                    matching_count_below: 10
+                    cooldown: 60m
+                redis:
+                  stream_id: meckauer-south
+                  input_stream_prefix: objectdetector
+                  output_stream_prefix: detectionselector
+            - name: training-data-east
+              settingsYaml:
+                log_level: DEBUG
+                filters:
+                  - name: many_vehicles
+                    match_detection:
+                      class_id_in: [2,5,7]
+                    matching_count_above: 9
+                    cooldown: 30m
+
+                  - name: few_not_zero_vehicles
+                    match_detection:
+                      class_id_in: [2,5,7]
+                    matching_count_above: 2
+                    matching_count_below: 5
+                    cooldown: 60m
+                redis:
+                  stream_id: meckauer-east
+                  input_stream_prefix: objectdetector
+                  output_stream_prefix: detectionselector
+            - name: training-data-west
+              settingsYaml:
+                log_level: DEBUG
+                filters:
+                  - name: many_vehicles
+                    match_detection:
+                      class_id_in: [2,5,7]
+                    matching_count_above: 7
+                    cooldown: 30m
+
+                  - name: few_not_zero_vehicles
+                    match_detection:
+                      class_id_in: [2,5,7]
+                    matching_count_above: 2
+                    matching_count_below: 5
+                    cooldown: 60m
+                redis:
+                  stream_id: meckauer-west
+                  input_stream_prefix: objectdetector
+                  output_stream_prefix: detectionselector
