@@ -25,7 +25,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 8.0.0
+    version: 12.2.0
     namespace: sae
     createNamespace: true
     values:
@@ -188,7 +188,6 @@ releases:
               max_age: 30
               min_hits: 3
               use_byte: false
-          needsGpu: false
           streamIds:
           - meckauer-north
           - meckauer-south
