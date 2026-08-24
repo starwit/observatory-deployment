@@ -25,7 +25,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 12.0.0
+    version: 12.1.0
     namespace: sae
     createNamespace: true
     values:
@@ -52,6 +52,7 @@ releases:
               image_height_px: 720
               image_width_px: 1280
               remove_unmapped_detections: false
+              ignore_edge_detections: true
               roll_deg: 2.0381330578778662
               stream_id: hafenstrasse-northwest
               tilt_deg: 83.35320725544882
@@ -81,7 +82,43 @@ releases:
                       - 52.4242984
                     - - 10.7158238
                       - 52.4244155
+            - brown_distortion_k1: -0.5468781921897918
+              brown_distortion_k2: -0.05543004885027384
+              brown_distortion_k3: 0.11977829148597355
+              mode: map
+              elevation_m: 9.673543242872295
+              heading_deg: 282.11537817694574
+              image_height_px: 720
+              image_width_px: 1280
+              remove_unmapped_detections: false
+              ignore_edge_detections: true
+              roll_deg: -3.1869112244121363
+              stream_id: hafenstrasse-northeast
+              tilt_deg: 64.54954117198372
+              view_x_deg: 54
+              mapping_area:
+                type: Polygon
+                coordinates:
+                  - - - 10.7166249
+                      - 52.4239647
+                    - - 10.7166144
+                      - 52.4241142
+                    - - 10.7170752
+                      - 52.4241351
+                    - - 10.717079
+                      - 52.4240927
+                    - - 10.716975
+                      - 52.4240869
+                    - - 10.7169874
+                      - 52.4239845
+                    - - 10.7166249
+                      - 52.4239647
+            - stream_id: hafenstrasse-southwest
+              mode: copy
+            - stream_id: hafenstrasse-southeast
+              mode: copy
             object_center_elevation_m: 1
+
           enabled: true
 
         objectDetector:
