@@ -244,7 +244,7 @@ releases:
     installed: {{ .Values.observatoryconfig.installed}}
     namespace: {{ .Values.namespace }}
     chart: starwitorg/observatory-config-chart
-    version: 1.0.1
+    version: 1.2.0
     values:
       - app:
           observatoryUrl: http://observatory.{{ .Values.namespace }}.svc.cluster.local/observatory

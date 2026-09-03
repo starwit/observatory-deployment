@@ -16,6 +16,19 @@ environments:
       - namespace: observatory-data
         hostname: {{ requiredEnv "HOSTNAME" }}
         tls: true
+
+        components:
+          observatory: true
+          observatoryconfig: true
+          timescaledb: true
+          valkey: true
+          grafana: true    
+        component_versions:
+          observatory: 2.2.0
+          observatoryconfig: 1.1.0
+          timescaledb: 1.2.4
+          grafana: 10.5.15
+
         auth:
           enabled: true
           keycloak_host: {{ requiredEnv "KEYCLOAK_HOSTNAME" }}
