@@ -266,7 +266,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 12.3.0
+    version: 12.4.0
     namespace: sae
     createNamespace: true
     values:
@@ -380,6 +380,7 @@ releases:
                     match_detection:
                       class_id_in: [5,7]
                       width_above: 0.075
+                      is_edge: false
                     cooldown: 1m
 
                   - name: low_confidence_cars
@@ -387,11 +388,13 @@ releases:
                       class_id_in: [2]
                       confidence_below: 0.6
                       width_above: 0.05
+                      is_edge: false
                     cooldown: 1m
                   
                   - name: motorcycles
                     match_detection:
                       class_id_in: [3]
+                      is_edge: false
                     cooldown: 1m
 
                 redis:
