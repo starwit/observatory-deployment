@@ -39,16 +39,22 @@ releases:
               lon: 10.786926227454526
         
         geoMapper:
+          enabled: true
           settingsYaml:
             cameras:
-            - brown_distortion_k1: -0.3205775683423553
-              brown_distortion_k2: 0.06835772189745826
-              brown_distortion_k3: 0
+            - stream_id: meckauer-east
               mode: map
               elevation_m: 9.750873463000419
               heading_deg: 83.28665708786522
+              roll_deg: 1.451322047263786
+              tilt_deg: 34.89977815983701
+              view_x_deg: 98
               image_height_px: 720
               image_width_px: 1280
+              brown_distortion_k1: -0.3205775683423553
+              brown_distortion_k2: 0.06835772189745826
+              brown_distortion_k3: 0
+              remove_unmapped_detections: false
               mapping_area:
                 coordinates:
                 - - - 10.787096772764224
@@ -62,19 +68,20 @@ releases:
                   - - 10.787096772764224
                     - 52.424080277899
                 type: Polygon
-              remove_unmapped_detections: false
-              roll_deg: 1.451322047263786
-              stream_id: meckauer-east
-              tilt_deg: 34.89977815983701
-              view_x_deg: 98
-            - brown_distortion_k1: -0.2836159635730888
-              brown_distortion_k2: 0.0438144175007354
-              brown_distortion_k3: 0
+
+            - stream_id: meckauer-north
+              mode: map
               elevation_m: 9.837664481459656
               heading_deg: 10.860781123214302
+              roll_deg: -2.8153535849970908
+              tilt_deg: 60.23730868825839
+              view_x_deg: 78
               image_height_px: 720
               image_width_px: 1280
-              mode: map
+              brown_distortion_k1: -0.2836159635730888
+              brown_distortion_k2: 0.0438144175007354
+              brown_distortion_k3: 0
+              remove_unmapped_detections: false
               mapping_area:
                 coordinates:
                 - - - 10.786752194120185
@@ -88,19 +95,20 @@ releases:
                   - - 10.786752194120185
                     - 52.42431456186525
                 type: Polygon
-              remove_unmapped_detections: false
-              roll_deg: -2.8153535849970908
-              stream_id: meckauer-north
-              tilt_deg: 60.23730868825839
-              view_x_deg: 78
-            - brown_distortion_k1: -0.3642591635887667
-              brown_distortion_k2: 0.13690304367204442
-              brown_distortion_k3: 0
+
+            - stream_id: meckauer-south
+              mode: map
               elevation_m: 10.239907398141582
               heading_deg: 192.25415424271873
+              roll_deg: -2.349038854591525
+              tilt_deg: 42.880596818964804
+              view_x_deg: 97.5
               image_height_px: 720
               image_width_px: 1280
-              mode: map
+              brown_distortion_k1: -0.3642591635887667
+              brown_distortion_k2: 0.13690304367204442
+              brown_distortion_k3: 0
+              remove_unmapped_detections: false
               mapping_area:
                 coordinates:
                 - - - 10.786720334358773
@@ -114,19 +122,20 @@ releases:
                   - - 10.786720334358773
                     - 52.424186906949004
                 type: Polygon
-              remove_unmapped_detections: false
-              roll_deg: -2.349038854591525
-              stream_id: meckauer-south
-              tilt_deg: 42.880596818964804
-              view_x_deg: 97.5
-            - brown_distortion_k1: -0.18669333449908376
-              brown_distortion_k2: 0.023470466423026186
-              brown_distortion_k3: 0
+            
+            - stream_id: meckauer-west
+              mode: map
               elevation_m: 9.741087240333819
               heading_deg: 311.48840848469496
+              roll_deg: -10.142669800887898
+              tilt_deg: 34.560425395037896
+              view_x_deg: 104.5
               image_height_px: 720
               image_width_px: 1280
-              mode: map
+              brown_distortion_k1: -0.18669333449908376
+              brown_distortion_k2: 0.023470466423026186
+              brown_distortion_k3: 0
+              remove_unmapped_detections: false
               mapping_area:
                 coordinates:
                 - - - 10.786768622047525
@@ -140,13 +149,7 @@ releases:
                   - - 10.786768622047525
                     - 52.42437513478074
                 type: Polygon
-              remove_unmapped_detections: false
-              roll_deg: -10.142669800887898
-              stream_id: meckauer-west
-              tilt_deg: 34.560425395037896
-              view_x_deg: 104.5
             object_center_elevation_m: 1
-          enabled: true
 
         objectDetector:
           customWeights:
