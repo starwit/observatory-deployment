@@ -1,0 +1,6 @@
+# Pull secret for the private Starwit registry (credentials are passed in by helmfile)
+internalRegistryPullSecret:
+  name: starwit-internal-registry
+  registry: docker.internal.starwit-infra.de
+  username: ""
+  password: ""

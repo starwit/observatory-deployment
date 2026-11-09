@@ -2,8 +2,14 @@ repositories:
   - name: starwitorg
     url: registry-1.docker.io/starwitorg
     oci: true
+  - name: starwit-internal
+    url: https://helm.internal.starwit-infra.de
+    username: {{ "ref+bw://e470f2c5-f3b4-4b0e-8e21-b06700d25b31/username" | fetchSecretValue | quote }}
+    password: {{ "ref+bw://e470f2c5-f3b4-4b0e-8e21-b06700d25b31/password" | fetchSecretValue | quote }}
+  - name: valkey
+    url: https://valkey.io/valkey-helm/
 
-environments: 
+environments:
   default:
     values:
       - DO_NOT_USE_THIS: 0
@@ -263,6 +269,8 @@ environments:
   msuv2-dzs-pod06:
     values:
       - name: dzs-d44-carlhahnbruecke
+        anomalyDetection:
+          enabled: true
         position:
           latitude: 52.435913 
           longitude: 10.799476
@@ -504,3 +512,85 @@ releases:
 
         databaseWriter:
           enabled: false
+
+  # Anomaly detection (only installed where anomalyDetection.enabled is set in the environment values)
+  # Note: the anomaly detection PVC is annotated with resource-policy=keep, i.e. it survives `destroy`.
+
+  # Pull secret for the private registry (anomaly detection images)
+  - name: config-data
+    chart: ./config-data
+    namespace: sae
+    installed: {{ .Values | get "anomalyDetection.enabled" false }}
+    values:
+      - internalRegistryPullSecret:
+          name: starwit-internal-registry
+          username: {{ "ref+bw://225c8444-1952-4cb1-ad08-b06700d79231/username" | fetchSecretValue | quote }}
+          password: {{ "ref+bw://225c8444-1952-4cb1-ad08-b06700d79231/password" | fetchSecretValue | quote }}
+
+  # Separate valkey for the anomaly detection output, so that an OOM kill (anomaly detection is still
+  # experimental) does not affect the SAE valkey. Input is still read from the SAE valkey (sae-valkey).
+  - name: anomaly-valkey
+    chart: valkey/valkey
+    version: 0.9.4
+    namespace: sae
+    installed: {{ .Values | get "anomalyDetection.enabled" false }}
+    values:
+      - architecture: standalone
+        auth:
+          enabled: false
+        valkeyConfig: |-
+          save ""
+          appendonly no
+        dataStorage:
+          enabled: false
+
+  - name: sae-anomaly-detection
+    chart: starwit-internal/sae-anomaly-detection
+    version: 2.0.0
+    namespace: sae
+    installed: {{ .Values | get "anomalyDetection.enabled" false }}
+    needs:
+      - sae/config-data
+    values:
+      - extraImagePullSecrets:
+          - name: starwit-internal-registry
+        persistence:
+          size: 10Gi
+        settingsYaml:
+          log_level: INFO
+          redisIn:
+            host: sae-valkey
+            port: 6379
+            stream_id: {{ .Values.name }}
+            stream_prefix: objecttracker
+          redisOut:
+            host: anomaly-valkey
+            port: 6379
+            stream_id: {{ .Values.name }}
+            stream_prefix: anomalydetection
+          model:
+            start_training: true            # trains a model if none exists on the PVC yet (no-op if a model is present)
+            time_interval_train_data: 24    # hours of training data to collect
+
+  - name: anomaly-post-processing
+    chart: starwit-internal/anomaly-post-processing
+    version: 4.0.5
+    namespace: sae
+    installed: {{ .Values | get "anomalyDetection.enabled" false }}
+    needs:
+      - sae/config-data
+    values:
+      - existingPullSecret: starwit-internal-registry
+        podSecurityContext:
+          fsGroup: 1000                     # image runs as non-root system user, make the PVC group-writable for it
+        config:
+          log_level: INFO
+          redis_input:
+            host: anomaly-valkey
+            port: 6379
+            stream_ids:
+              - {{ .Values.name }}          # must match settingsYaml.redisOut.stream_id of anomaly detection
+            stream_prefix: anomalydetection
+          http_output: null                 # needs AI Cockpit + MinIO, not available here
+          local_output:
+            path: /anomaly-data             # anomalies are written to the chart's PVC (do not change the path)
