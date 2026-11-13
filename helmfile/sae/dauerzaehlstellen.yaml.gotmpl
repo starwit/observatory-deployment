@@ -131,6 +131,8 @@ environments:
         camera:
           username: admin
           passwordRef: ref+bw://2609c85e-410c-4f02-8f60-b3f600b6e2bf/password
+        anomalyDetection:
+          enabled: false
         geoMapping:
           mode: map
           view_x_deg: 81
@@ -546,7 +548,7 @@ releases:
 
   - name: sae-anomaly-detection
     chart: starwit-internal/sae-anomaly-detection
-    version: 2.0.0
+    version: 2.0.2
     namespace: sae
     installed: {{ .Values | get "anomalyDetection.enabled" false }}
     needs:
@@ -556,6 +558,11 @@ releases:
           - name: starwit-internal-registry
         persistence:
           size: 10Gi
+        resources:
+          requests:
+            memory: 1Gi
+          limits:
+            memory: 4Gi
         settingsYaml:
           log_level: INFO
           redisIn:
@@ -574,7 +581,7 @@ releases:
 
   - name: anomaly-post-processing
     chart: starwit-internal/anomaly-post-processing
-    version: 4.0.5
+    version: 4.1.0
     namespace: sae
     installed: {{ .Values | get "anomalyDetection.enabled" false }}
     needs:
@@ -594,3 +601,5 @@ releases:
           http_output: null                 # needs AI Cockpit + MinIO, not available here
           local_output:
             path: /anomaly-data             # anomalies are written to the chart's PVC (do not change the path)
+            max_age_days: 14                # Delete anomalies older than this (default 14, null = disabled)
+            max_size_gb: 10                 # Delete oldest anomalies when total size exceeds this (default 10, null = disabled)
