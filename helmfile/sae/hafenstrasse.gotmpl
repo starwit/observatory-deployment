@@ -2,6 +2,8 @@ repositories:
   - name: starwitorg
     url: registry-1.docker.io/starwitorg
     oci: true
+  - name: valkey
+    url: https://valkey.io/valkey-helm/
 
 environments:
   default:
@@ -330,3 +332,80 @@ releases:
                   stream_id: hafenstrasse-southwest
                   input_stream_prefix: objectdetector
                   output_stream_prefix: detectionselector
+
+  # Anomaly detection (on hafenstrasse-northwest only)
+  # Note: the anomaly detection PVC is annotated with resource-policy=keep, i.e. it survives `destroy`.
+
+  # Separate valkey for the anomaly detection output, so that an OOM kill (anomaly detection is still
+  # experimental) does not affect the SAE valkey. Input is still read from the SAE valkey (sae-valkey).
+  - name: anomaly-valkey
+    chart: valkey/valkey
+    version: 0.9.4
+    namespace: sae
+    values:
+      - architecture: standalone
+        resources:
+          limits:
+            memory: 1Gi
+        auth:
+          enabled: false
+        valkeyConfig: |-
+          save ""
+          appendonly no
+        dataStorage:
+          enabled: false
+
+  - name: sae-anomaly-detection
+    chart: starwitorg/sae-anomaly-detection-chart
+    version: 2.1.0
+    namespace: sae
+    values:
+      - persistence:
+          size: 10Gi
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 1Gi
+          limits:
+            cpu: 1000m
+            memory: 4Gi
+        settingsYaml:
+          log_level: INFO
+          redisIn:
+            host: sae-valkey
+            port: 6379
+            stream_id: hafenstrasse-northwest
+            stream_prefix: objecttracker
+          redisOut:
+            host: anomaly-valkey
+            port: 6379
+            stream_id: hafenstrasse-northwest
+            stream_prefix: anomalydetection
+          model:
+            start_training: true            # trains a model if none exists on the PVC yet (no-op if a model is present)
+            time_interval_train_data: 24    # hours of training data to collect
+
+  - name: anomaly-post-processing
+    chart: starwitorg/anomaly-post-processing-chart
+    version: 4.3.0
+    namespace: sae
+    values:
+      - podSecurityContext:
+          fsGroup: 1000                     # image runs as non-root system user, make the PVC group-writable for it
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        config:
+          log_level: INFO
+          redis_input:
+            host: anomaly-valkey
+            port: 6379
+            stream_ids:
+              - hafenstrasse-northwest      # must match settingsYaml.redisOut.stream_id of anomaly detection
+            stream_prefix: anomalydetection
+          http_output: null                 # needs AI Cockpit + MinIO, not available here
+          local_output:
+            path: /anomaly-data             # anomalies are written to the chart's PVC (do not change the path)
+            max_age_days: 14                # Delete anomalies older than this (default 14, null = disabled)
+            max_size_gb: 10                 # Delete oldest anomalies when total size exceeds this (default 10, null = disabled)
