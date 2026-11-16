@@ -2,10 +2,6 @@ repositories:
   - name: starwitorg
     url: registry-1.docker.io/starwitorg
     oci: true
-  - name: starwit-internal
-    url: https://helm.internal.starwit-infra.de
-    username: {{ "ref+bw://e470f2c5-f3b4-4b0e-8e21-b06700d25b31/username" | fetchSecretValue | quote }}
-    password: {{ "ref+bw://e470f2c5-f3b4-4b0e-8e21-b06700d25b31/password" | fetchSecretValue | quote }}
   - name: valkey
     url: https://valkey.io/valkey-helm/
 
@@ -132,7 +128,7 @@ environments:
           username: admin
           passwordRef: ref+bw://2609c85e-410c-4f02-8f60-b3f600b6e2bf/password
         anomalyDetection:
-          enabled: false
+          enabled: true
         geoMapping:
           mode: map
           view_x_deg: 81
@@ -518,17 +514,6 @@ releases:
   # Anomaly detection (only installed where anomalyDetection.enabled is set in the environment values)
   # Note: the anomaly detection PVC is annotated with resource-policy=keep, i.e. it survives `destroy`.
 
-  # Pull secret for the private registry (anomaly detection images)
-  - name: config-data
-    chart: ./config-data
-    namespace: sae
-    installed: {{ .Values | get "anomalyDetection.enabled" false }}
-    values:
-      - internalRegistryPullSecret:
-          name: starwit-internal-registry
-          username: {{ "ref+bw://225c8444-1952-4cb1-ad08-b06700d79231/username" | fetchSecretValue | quote }}
-          password: {{ "ref+bw://225c8444-1952-4cb1-ad08-b06700d79231/password" | fetchSecretValue | quote }}
-
   # Separate valkey for the anomaly detection output, so that an OOM kill (anomaly detection is still
   # experimental) does not affect the SAE valkey. Input is still read from the SAE valkey (sae-valkey).
   - name: anomaly-valkey
@@ -547,16 +532,12 @@ releases:
           enabled: false
 
   - name: sae-anomaly-detection
-    chart: starwit-internal/sae-anomaly-detection
-    version: 2.0.2
+    chart: starwitorg/sae-anomaly-detection-chart
+    version: 2.1.0
     namespace: sae
     installed: {{ .Values | get "anomalyDetection.enabled" false }}
-    needs:
-      - sae/config-data
     values:
-      - extraImagePullSecrets:
-          - name: starwit-internal-registry
-        persistence:
+      - persistence:
           size: 10Gi
         resources:
           requests:
@@ -580,15 +561,12 @@ releases:
             time_interval_train_data: 24    # hours of training data to collect
 
   - name: anomaly-post-processing
-    chart: starwit-internal/anomaly-post-processing
-    version: 4.1.0
+    chart: starwitorg/anomaly-post-processing-chart
+    version: 4.2.0
     namespace: sae
     installed: {{ .Values | get "anomalyDetection.enabled" false }}
-    needs:
-      - sae/config-data
     values:
-      - existingPullSecret: starwit-internal-registry
-        podSecurityContext:
+      - podSecurityContext:
           fsGroup: 1000                     # image runs as non-root system user, make the PVC group-writable for it
         config:
           log_level: INFO
