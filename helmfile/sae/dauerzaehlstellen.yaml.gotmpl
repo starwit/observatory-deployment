@@ -336,7 +336,7 @@ environments:
 releases:
   - name: sae
     chart: starwitorg/sae
-    version: 12.4.0
+    version: 14.1.0
     namespace: sae
     createNamespace: true
     values:
@@ -350,16 +350,18 @@ releases:
               lon: {{ .Values.position.longitude }}
 
         videoSource:
-          settingsYamls:
-          - id: {{ .Values.name }}
-            uri: 'rtsp://{{ .Values.camera.username | urlquery }}:{{ .Values.camera.passwordRef | fetchSecretValue | urlquery }}@192.168.1.64/'
-            max_fps: 10
-            scale_width: 1280
-            jpeg_quality: 90
-            log_level: INFO
-            camera_position_source:
-              stream_id: "positionsource:self"
-              drop_frames_if_no_position: True
+          instances:
+          - name: {{ .Values.name }}
+            settingsYaml:
+              id: {{ .Values.name }}
+              uri: 'rtsp://{{ .Values.camera.username | urlquery }}:{{ .Values.camera.passwordRef | fetchSecretValue | urlquery }}@192.168.1.64/'
+              max_fps: 10
+              scale_width: 1280
+              jpeg_quality: 90
+              log_level: INFO
+              camera_position_source:
+                stream_id: "positionsource:self"
+                drop_frames_if_no_position: True
 
         objectDetector:
           image:
@@ -435,6 +437,7 @@ releases:
                   buffer_length: 10
                   target_stream_maxlen: 100
                   tls: false
+                  b64_encode: false
                 mapping_config:
                   - source: geomapper:{{ .Values.name }}
                     target: geomapper:{{ .Values.name }}
