@@ -1,5 +1,8 @@
 # Observatory deployment
 
+> [!WARNING]
+> **This repository is deprecated.** WOB-related deployments have been moved to [starwit/wob-deployment](https://github.com/starwit/wob-deployment/tree/main).
+
 This repository contains tools to deploy all components of Observatory.
 
 ## Deployment
